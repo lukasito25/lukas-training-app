@@ -45,6 +45,8 @@ export class DatabaseService {
 
   // Save completed session
   static async saveSession(sessionData: Omit<CompletedSession, 'id' | 'user_id' | 'created_at' | 'updated_at'>) {
+    console.log('Attempting to save session:', { user_id: this.userId, ...sessionData });
+
     const { data, error } = await supabase
       .from('completed_sessions')
       .insert({
@@ -54,7 +56,12 @@ export class DatabaseService {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('Supabase save error:', error);
+      throw error;
+    }
+
+    console.log('Session saved successfully:', data);
     return data
   }
 
