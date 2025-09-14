@@ -284,7 +284,7 @@ const TrainingProgram = () => {
         day_name: dayName,
         exercises: dayExercises,
         nutrition: dayNutrition,
-        exercises_completed: dayExercises.filter(e => e.completed).length,
+        exercises_completed: dayExercises.filter((e: any) => e.completed).length,
         total_exercises: dayExercises.length,
         nutrition_completed: dayNutrition.filter(n => n.completed).length,
         total_nutrition: dayNutrition.length
@@ -305,7 +305,7 @@ const TrainingProgram = () => {
     }
   };
 
-  const getDemoUrl = (demo: string) => {
+  const getDemoUrl = () => {
     return {
       video: "https://www.youtube.com/results?search_query=",
       guide: "https://www.google.com/search?q="
@@ -449,7 +449,7 @@ const TrainingProgram = () => {
                 {exercises.map((exercise, index) => {
                   const isCompleted = completedExercises[`${dayName}-${index}-week${currentWeek}`];
                   const currentWeight = exerciseWeights[`${dayName}-${index}-week${currentWeek}`] || 0;
-                  const demos = getDemoUrl(exercise.demo);
+                  const demos = getDemoUrl();
                   const isArmFocus = exercise.notes.includes('ARM FOCUS') || exercise.notes.includes('ARM BONUS');
 
                   return (
