@@ -1,10 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim()
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
+
+console.log('Supabase URL:', supabaseUrl)
+console.log('Supabase Key length:', supabaseAnonKey?.length)
+console.log('Supabase Key preview:', supabaseAnonKey?.substring(0, 20) + '...')
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
+}
+
+// Validate key format (JWT should have 3 parts separated by dots)
+if (supabaseAnonKey.split('.').length !== 3) {
+  throw new Error('Invalid Supabase API key format')
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
