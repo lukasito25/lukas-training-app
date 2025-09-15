@@ -213,28 +213,114 @@ const TrainingProgram = () => {
     }
   };
 
-  const updateWeight = (day: string, exerciseIndex: number, change: number) => {
+  const updateWeight = async (day: string, exerciseIndex: number, change: number) => {
     const key = `${day}-${exerciseIndex}-week${currentWeek}`;
+    const currentValue = exerciseWeights[key] || getLastUsedWeight(day, exerciseIndex, currentWeek);
+    const newWeight = Math.max(0, currentValue + change);
+
     setExerciseWeights(prev => ({
       ...prev,
-      [key]: Math.max(0, (prev[key] || 0) + change)
+      [key]: newWeight
     }));
+
+    // Auto-save to Supabase immediately
+    try {
+      const updatedExerciseWeights = {
+        ...exerciseWeights,
+        [key]: newWeight
+      };
+
+      await DatabaseService.savePreferences({
+        current_week: currentWeek,
+        completed_exercises: completedExercises,
+        exercise_weights: updatedExerciseWeights,
+        nutrition_goals: nutritionGoals
+      });
+      console.log('Exercise weight auto-saved to cloud');
+    } catch (error) {
+      console.error('Failed to auto-save exercise weight:', error);
+    }
   };
 
-  const toggleExercise = (day: string, exerciseIndex: number) => {
+  const toggleExercise = async (day: string, exerciseIndex: number) => {
     const key = `${day}-${exerciseIndex}-week${currentWeek}`;
     setCompletedExercises(prev => ({
       ...prev,
       [key]: !prev[key]
     }));
+
+    // Auto-save to Supabase immediately
+    try {
+      const updatedCompletedExercises = {
+        ...completedExercises,
+        [key]: !completedExercises[key]
+      };
+
+      await DatabaseService.savePreferences({
+        current_week: currentWeek,
+        completed_exercises: updatedCompletedExercises,
+        exercise_weights: exerciseWeights,
+        nutrition_goals: nutritionGoals
+      });
+      console.log('Exercise completion auto-saved to cloud');
+    } catch (error) {
+      console.error('Failed to auto-save exercise completion:', error);
+    }
   };
 
-  const toggleNutritionGoal = (day: string, goalIndex: number) => {
+  const toggleNutritionGoal = async (day: string, goalIndex: number) => {
     const key = `${day}-nutrition-${goalIndex}-week${currentWeek}`;
     setNutritionGoals(prev => ({
       ...prev,
       [key]: !prev[key]
     }));
+
+    // Auto-save to Supabase immediately
+    try {
+      const updatedNutritionGoals = {
+        ...nutritionGoals,
+        [key]: !nutritionGoals[key]
+      };
+
+      await DatabaseService.savePreferences({
+        current_week: currentWeek,
+        completed_exercises: completedExercises,
+        exercise_weights: exerciseWeights,
+        nutrition_goals: updatedNutritionGoals
+      });
+      console.log('Nutrition goal auto-saved to cloud');
+    } catch (error) {
+      console.error('Failed to auto-save nutrition goal:', error);
+    }
+  };
+
+  // Get the most recent weight used for this exercise across all previous weeks
+  const getLastUsedWeight = (dayName: string, exerciseIndex: number, currentWeek: number) => {
+    // Check current week first
+    const currentKey = `${dayName}-${exerciseIndex}-week${currentWeek}`;
+    if (exerciseWeights[currentKey] && exerciseWeights[currentKey] > 0) {
+      return exerciseWeights[currentKey];
+    }
+
+    // Look through completed sessions for the same exercise
+    for (const session of completedSessions) {
+      if (session.day_name === dayName && session.exercises && session.exercises[exerciseIndex]) {
+        const exercise = session.exercises[exerciseIndex];
+        if (exercise.weight && exercise.weight > 0) {
+          return exercise.weight;
+        }
+      }
+    }
+
+    // Look through previous weeks in exerciseWeights
+    for (let week = currentWeek - 1; week >= 1; week--) {
+      const key = `${dayName}-${exerciseIndex}-week${week}`;
+      if (exerciseWeights[key] && exerciseWeights[key] > 0) {
+        return exerciseWeights[key];
+      }
+    }
+
+    return 0; // Default if no previous weight found
   };
 
   const resetWeek = async () => {
@@ -448,7 +534,7 @@ const TrainingProgram = () => {
               <div className="divide-y divide-gray-100">
                 {exercises.map((exercise, index) => {
                   const isCompleted = completedExercises[`${dayName}-${index}-week${currentWeek}`];
-                  const currentWeight = exerciseWeights[`${dayName}-${index}-week${currentWeek}`] || 0;
+                  const currentWeight = exerciseWeights[`${dayName}-${index}-week${currentWeek}`] || getLastUsedWeight(dayName, index, currentWeek);
                   const demos = getDemoUrl();
                   const isArmFocus = exercise.notes.includes('ARM FOCUS') || exercise.notes.includes('ARM BONUS');
 
