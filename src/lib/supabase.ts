@@ -90,24 +90,56 @@ export class DatabaseService {
   static async savePreferences(preferences: Omit<UserPreferences, 'id' | 'user_id' | 'created_at' | 'updated_at'>) {
     console.log('DatabaseService.savePreferences() called with:', { user_id: this.userId, ...preferences });
 
-    const { data, error } = await supabase
+    // First, try to update existing record
+    const { data: updateData, error: updateError } = await supabase
       .from('user_preferences')
-      .upsert({
-        user_id: this.userId,
-        ...preferences
+      .update({
+        ...preferences,
+        updated_at: new Date().toISOString()
       })
+      .eq('user_id', this.userId)
       .select()
       .single()
 
-    console.log('savePreferences result:', { data, error });
+    console.log('Update attempt result:', { updateData, updateError });
 
-    if (error) {
-      console.error('savePreferences error:', error);
-      throw error;
+    // If update succeeded, return the data
+    if (updateData && !updateError) {
+      console.log('savePreferences successfully updated:', updateData);
+      return updateData;
     }
 
-    console.log('savePreferences successfully saved:', data);
-    return data
+    // If no row exists (PGRST116 error), insert new record
+    if (updateError && updateError.code === 'PGRST116') {
+      console.log('No existing preferences found, inserting new record');
+
+      const { data: insertData, error: insertError } = await supabase
+        .from('user_preferences')
+        .insert({
+          user_id: this.userId,
+          ...preferences
+        })
+        .select()
+        .single()
+
+      console.log('Insert attempt result:', { insertData, insertError });
+
+      if (insertError) {
+        console.error('savePreferences insert error:', insertError);
+        throw insertError;
+      }
+
+      console.log('savePreferences successfully inserted:', insertData);
+      return insertData;
+    }
+
+    // If there was a different error, throw it
+    if (updateError) {
+      console.error('savePreferences update error:', updateError);
+      throw updateError;
+    }
+
+    return updateData;
   }
 
   // Get user preferences
