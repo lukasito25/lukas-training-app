@@ -54,8 +54,6 @@ export class DatabaseService {
 
   // Save completed session
   static async saveSession(sessionData: Omit<CompletedSession, 'id' | 'user_id' | 'created_at' | 'updated_at'>) {
-    console.log('Attempting to save session:', { user_id: this.userId, ...sessionData });
-
     const { data, error } = await supabase
       .from('completed_sessions')
       .insert({
@@ -65,12 +63,7 @@ export class DatabaseService {
       .select()
       .single()
 
-    if (error) {
-      console.error('Supabase save error:', error);
-      throw error;
-    }
-
-    console.log('Session saved successfully:', data);
+    if (error) throw error
     return data
   }
 
@@ -88,8 +81,6 @@ export class DatabaseService {
 
   // Save user preferences (current state)
   static async savePreferences(preferences: Omit<UserPreferences, 'id' | 'user_id' | 'created_at' | 'updated_at'>) {
-    console.log('DatabaseService.savePreferences() called with:', { user_id: this.userId, ...preferences });
-
     // First, try to update existing record
     const { data: updateData, error: updateError } = await supabase
       .from('user_preferences')
@@ -101,18 +92,13 @@ export class DatabaseService {
       .select()
       .single()
 
-    console.log('Update attempt result:', { updateData, updateError });
-
     // If update succeeded, return the data
     if (updateData && !updateError) {
-      console.log('savePreferences successfully updated:', updateData);
       return updateData;
     }
 
     // If no row exists (PGRST116 error), insert new record
     if (updateError && updateError.code === 'PGRST116') {
-      console.log('No existing preferences found, inserting new record');
-
       const { data: insertData, error: insertError } = await supabase
         .from('user_preferences')
         .insert({
@@ -122,20 +108,15 @@ export class DatabaseService {
         .select()
         .single()
 
-      console.log('Insert attempt result:', { insertData, insertError });
-
       if (insertError) {
-        console.error('savePreferences insert error:', insertError);
         throw insertError;
       }
 
-      console.log('savePreferences successfully inserted:', insertData);
       return insertData;
     }
 
     // If there was a different error, throw it
     if (updateError) {
-      console.error('savePreferences update error:', updateError);
       throw updateError;
     }
 
@@ -144,20 +125,15 @@ export class DatabaseService {
 
   // Get user preferences
   static async getPreferences(): Promise<UserPreferences | null> {
-    console.log('DatabaseService.getPreferences() called for user:', this.userId);
-
     const { data, error } = await supabase
       .from('user_preferences')
       .select('*')
       .eq('user_id', this.userId)
       .single()
 
-    console.log('getPreferences result:', { data, error });
-
     if (error) {
       if (error.code === 'PGRST116') {
         // No row found, return default
-        console.log('No preferences found, returning default values');
         return {
           current_week: 1,
           completed_exercises: {},
@@ -165,11 +141,9 @@ export class DatabaseService {
           nutrition_goals: {}
         }
       }
-      console.error('getPreferences error:', error);
       throw error
     }
 
-    console.log('getPreferences returning data:', data);
     return data
   }
 

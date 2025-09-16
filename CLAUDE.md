@@ -27,10 +27,11 @@ python3 -m http.server 8000
 
 ## Architecture Overview
 
-### Dual Implementation Strategy
-The project has two implementations that should be kept in sync:
-1. **Modern Vite/TypeScript setup** (`src/` directory) - Primary development version
-2. **CDN/Vanilla JS version** (`app.js` + `index.html`) - Fallback version for compatibility
+### Cloud-Synced Architecture
+The project is a single implementation with cloud synchronization:
+1. **Modern Vite/TypeScript setup** (`src/` directory) - Production application
+2. **Supabase integration** - Cloud database for cross-device sync
+3. **Legacy files** (`app.js` + root `index.html`) - Outdated, use TypeScript version only
 
 ### Core Application Structure
 
@@ -60,11 +61,13 @@ The app is a single-page React application with the main component `TrainingProg
 **Exercise Tracking:**
 - Progressive exercise variations across 3 phases
 - Weight tracking with +/-2.5kg increments
-- Exercise completion checkboxes
+- **Auto-save exercise completion** - checkboxes save instantly to cloud
+- **Weight prefilling** - previous weights automatically populate
 - Demo links to YouTube search and Google search
 
 **Nutrition & Supplement Tracking:**
 - 13 daily goals: 4 protein meals, water, vegetables, fats, carbs, 5 supplements
+- **Auto-save nutrition goals** - checkboxes save instantly to cloud
 - Color-coded categories with left borders
 - Icons for visual identification
 
@@ -72,6 +75,7 @@ The app is a single-page React application with the main component `TrainingProg
 - Save completed workouts to history with timestamp
 - Full session data capture (exercises, weights, nutrition)
 - Modal history view with detailed session breakdown
+- **Cross-device synchronization** - progress syncs across phone, tablet, PC
 
 **Mobile-First Design:**
 - Responsive grid layouts
@@ -79,13 +83,35 @@ The app is a single-page React application with the main component `TrainingProg
 - Sticky header with progress tracking
 - Collapsible sections
 
+## Cloud Database Integration
+
+### Supabase Setup
+The app uses Supabase for cloud data persistence:
+- **Database**: PostgreSQL with Row Level Security (RLS)
+- **Tables**: `user_preferences` (current state), `completed_sessions` (workout history)
+- **User ID**: Uses 'anonymous' as default user identifier
+- **Auto-save**: All user interactions save immediately to cloud
+
+### Environment Variables
+Required for deployment:
+```bash
+VITE_SUPABASE_URL=https://abizxuxilbyrfohxjame.supabase.co
+VITE_SUPABASE_ANON_KEY=<your-anon-key>
+```
+
+### Data Persistence Features
+- **Instant Save**: Exercise completion, weight changes, nutrition goals
+- **Cross-Device Sync**: Open app on any device, see latest progress
+- **Offline Resilience**: Changes persist on refresh, even with poor connection
+- **Progress Bar**: Automatically reflects completion percentage from database
+
 ## Development Guidelines
 
-### Working with Dual Implementations
-When modifying functionality:
-1. Update the TypeScript version in `src/TrainingProgram.tsx` first
-2. Mirror changes in `app.js` (convert TypeScript to vanilla JS)
-3. Test both implementations work correctly
+### TypeScript-Only Development
+The app uses a single TypeScript implementation:
+1. All changes go in `src/TrainingProgram.tsx`
+2. Legacy `app.js` is outdated - ignore it
+3. Test locally with `npm run dev`, deploy via Vercel
 
 ### State Key Patterns
 - Exercise completion: `"${dayName}-${exerciseIndex}-week${currentWeek}"`

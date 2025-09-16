@@ -5,11 +5,12 @@ A progressive 12-week training app with nutrition tracking, built with React, Ty
 ## Features
 
 - **Progressive 3-Phase Training**: Foundation → Growth → Intensity
-- **Complete Exercise Tracking**: Sets, reps, weights, completion status
+- **Auto-Save Exercise Tracking**: Instant cloud save on every checkbox/weight change
+- **Smart Weight Prefilling**: Previous weights automatically populate for progression
 - **Nutrition & Supplement Tracking**: 13 daily goals including 5 supplements
+- **Cross-Device Sync**: Progress syncs across phone, tablet, and PC
 - **Session History**: Save and view all completed workouts in the cloud
 - **Mobile-First Design**: Optimized for gym usage on mobile devices
-- **Cloud Sync**: All data saved to Supabase database
 - **ARM Specialization**: Extra arm volume on every session
 
 ## Tech Stack
@@ -67,9 +68,12 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 - Weight: +5kg (77.4kg → 82-83kg)
 - Daily Protein: 156g (39g x 4 meals)
 
-## Mobile PWA Features
+## Live Application
 
-- Add to home screen capability
-- Offline functionality for gym usage
-- Touch-optimized controls
-- Fast loading and responsive design
+**🔗 Production URL**: [lukas-training-app.vercel.app](https://lukas-training-app.vercel.app)
+
+**Key Benefits:**
+- **No Sync Needed**: All changes save automatically to cloud
+- **Instant Updates**: Check exercise → saves immediately
+- **Cross-Device Ready**: Start on phone, continue on tablet
+- **Always Current**: Progress bar reflects real completion status
