@@ -19,19 +19,36 @@ const TrainingProgram = () => {
 
   const loadData = async () => {
     try {
+      console.log('Loading data from Supabase...');
       const [preferences, sessions] = await Promise.all([
         DatabaseService.getPreferences(),
         DatabaseService.getSessions()
       ]);
 
+      console.log('Loaded preferences:', preferences);
+      console.log('Loaded sessions:', sessions);
+
       if (preferences) {
+        console.log('Setting preferences:', {
+          current_week: preferences.current_week,
+          completed_exercises: preferences.completed_exercises,
+          exercise_weights: preferences.exercise_weights,
+          nutrition_goals: preferences.nutrition_goals
+        });
+
         setCurrentWeek(preferences.current_week);
-        setCompletedExercises(preferences.completed_exercises);
-        setExerciseWeights(preferences.exercise_weights);
-        setNutritionGoals(preferences.nutrition_goals);
+        setCompletedExercises(preferences.completed_exercises || {});
+        setExerciseWeights(preferences.exercise_weights || {});
+        setNutritionGoals(preferences.nutrition_goals || {});
+      } else {
+        console.log('No preferences found, using defaults');
+        setCompletedExercises({});
+        setExerciseWeights({});
+        setNutritionGoals({});
       }
 
-      setCompletedSessions(sessions);
+      setCompletedSessions(sessions || []);
+      console.log('Data loading completed');
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {

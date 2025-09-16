@@ -88,6 +88,8 @@ export class DatabaseService {
 
   // Save user preferences (current state)
   static async savePreferences(preferences: Omit<UserPreferences, 'id' | 'user_id' | 'created_at' | 'updated_at'>) {
+    console.log('DatabaseService.savePreferences() called with:', { user_id: this.userId, ...preferences });
+
     const { data, error } = await supabase
       .from('user_preferences')
       .upsert({
@@ -97,21 +99,33 @@ export class DatabaseService {
       .select()
       .single()
 
-    if (error) throw error
+    console.log('savePreferences result:', { data, error });
+
+    if (error) {
+      console.error('savePreferences error:', error);
+      throw error;
+    }
+
+    console.log('savePreferences successfully saved:', data);
     return data
   }
 
   // Get user preferences
   static async getPreferences(): Promise<UserPreferences | null> {
+    console.log('DatabaseService.getPreferences() called for user:', this.userId);
+
     const { data, error } = await supabase
       .from('user_preferences')
       .select('*')
       .eq('user_id', this.userId)
       .single()
 
+    console.log('getPreferences result:', { data, error });
+
     if (error) {
       if (error.code === 'PGRST116') {
         // No row found, return default
+        console.log('No preferences found, returning default values');
         return {
           current_week: 1,
           completed_exercises: {},
@@ -119,8 +133,11 @@ export class DatabaseService {
           nutrition_goals: {}
         }
       }
+      console.error('getPreferences error:', error);
       throw error
     }
+
+    console.log('getPreferences returning data:', data);
     return data
   }
 
