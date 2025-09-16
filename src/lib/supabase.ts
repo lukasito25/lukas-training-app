@@ -1,10 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim()
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
+
+console.log('Supabase URL:', supabaseUrl)
+console.log('Supabase Key length:', supabaseAnonKey?.length)
+console.log('Supabase Key preview:', supabaseAnonKey?.substring(0, 20) + '...')
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
+}
+
+// Validate key format (JWT should have 3 parts separated by dots)
+if (supabaseAnonKey.split('.').length !== 3) {
+  throw new Error('Invalid Supabase API key format')
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
@@ -79,6 +88,8 @@ export class DatabaseService {
 
   // Save user preferences (current state)
   static async savePreferences(preferences: Omit<UserPreferences, 'id' | 'user_id' | 'created_at' | 'updated_at'>) {
+    console.log('DatabaseService.savePreferences() called with:', { user_id: this.userId, ...preferences });
+
     const { data, error } = await supabase
       .from('user_preferences')
       .upsert({
@@ -88,21 +99,33 @@ export class DatabaseService {
       .select()
       .single()
 
-    if (error) throw error
+    console.log('savePreferences result:', { data, error });
+
+    if (error) {
+      console.error('savePreferences error:', error);
+      throw error;
+    }
+
+    console.log('savePreferences successfully saved:', data);
     return data
   }
 
   // Get user preferences
   static async getPreferences(): Promise<UserPreferences | null> {
+    console.log('DatabaseService.getPreferences() called for user:', this.userId);
+
     const { data, error } = await supabase
       .from('user_preferences')
       .select('*')
       .eq('user_id', this.userId)
       .single()
 
+    console.log('getPreferences result:', { data, error });
+
     if (error) {
       if (error.code === 'PGRST116') {
         // No row found, return default
+        console.log('No preferences found, returning default values');
         return {
           current_week: 1,
           completed_exercises: {},
@@ -110,8 +133,11 @@ export class DatabaseService {
           nutrition_goals: {}
         }
       }
+      console.error('getPreferences error:', error);
       throw error
     }
+
+    console.log('getPreferences returning data:', data);
     return data
   }
 
