@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CheckCircle2, Circle, RotateCcw, Trophy, Calendar, Clock, Plus, Minus, Play, FileText, Save, History, X } from "lucide-react";
+import { CheckCircle2, Circle, RotateCcw, Trophy, Calendar, Clock, Plus, Minus, Play, FileText, Save, History, X, RefreshCw } from "lucide-react";
 import { DatabaseService } from './lib/supabase';
 
 const TrainingProgram = () => {
@@ -11,6 +11,7 @@ const TrainingProgram = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
   // Load data from Supabase on component mount
   useEffect(() => {
@@ -32,6 +33,7 @@ const TrainingProgram = () => {
       }
 
       setCompletedSessions(sessions);
+      setLastSyncTime(new Date());
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -39,10 +41,14 @@ const TrainingProgram = () => {
     }
   };
 
-  // Auto-save preferences when state changes
+  // Auto-save preferences when state changes (debounced to avoid too many saves)
   useEffect(() => {
     if (!loading) {
-      savePreferences();
+      const timeoutId = setTimeout(() => {
+        savePreferences();
+      }, 1000); // Debounce by 1 second
+
+      return () => clearTimeout(timeoutId);
     }
   }, [currentWeek, completedExercises, exerciseWeights, nutritionGoals]);
 
@@ -56,6 +62,19 @@ const TrainingProgram = () => {
       });
     } catch (error) {
       console.error('Error saving preferences:', error);
+    }
+  };
+
+  // Manual sync function for cross-device reliability
+  const syncData = async () => {
+    setLoading(true);
+    try {
+      console.log('Syncing data from cloud...');
+      await loadData();
+      console.log('Data synced successfully');
+    } catch (error) {
+      console.error('Error syncing data:', error);
+      alert('Failed to sync data. Please check your connection.');
     }
   };
 
@@ -473,6 +492,15 @@ const TrainingProgram = () => {
 
             <div className="flex gap-2">
               <button
+                onClick={syncData}
+                disabled={loading}
+                className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Sync data across devices"
+              >
+                <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+                Sync
+              </button>
+              <button
                 onClick={() => setShowHistory(true)}
                 className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
               >
@@ -488,6 +516,13 @@ const TrainingProgram = () => {
               </button>
             </div>
           </div>
+
+          {/* Sync Status */}
+          {lastSyncTime && (
+            <div className="mt-2 text-xs text-gray-500 text-center">
+              Last synced: {lastSyncTime.toLocaleTimeString()}
+            </div>
+          )}
 
           {/* Progress Bar */}
           <div className="mt-3 bg-gray-200 rounded-full h-2">
