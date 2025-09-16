@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CheckCircle2, Circle, RotateCcw, Trophy, Calendar, Clock, Plus, Minus, Play, FileText, Save, History, X, RefreshCw } from "lucide-react";
+import { CheckCircle2, Circle, RotateCcw, Trophy, Calendar, Clock, Plus, Minus, Play, FileText, Save, History, X } from "lucide-react";
 import { DatabaseService } from './lib/supabase';
 
 const TrainingProgram = () => {
@@ -11,7 +11,6 @@ const TrainingProgram = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
   // Load data from Supabase on component mount
   useEffect(() => {
@@ -33,7 +32,6 @@ const TrainingProgram = () => {
       }
 
       setCompletedSessions(sessions);
-      setLastSyncTime(new Date());
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -41,42 +39,9 @@ const TrainingProgram = () => {
     }
   };
 
-  // Auto-save preferences when state changes (debounced to avoid too many saves)
-  useEffect(() => {
-    if (!loading) {
-      const timeoutId = setTimeout(() => {
-        savePreferences();
-      }, 1000); // Debounce by 1 second
+  // Removed problematic auto-save useEffect that was causing data loss
 
-      return () => clearTimeout(timeoutId);
-    }
-  }, [currentWeek, completedExercises, exerciseWeights, nutritionGoals]);
 
-  const savePreferences = async () => {
-    try {
-      await DatabaseService.savePreferences({
-        current_week: currentWeek,
-        completed_exercises: completedExercises,
-        exercise_weights: exerciseWeights,
-        nutrition_goals: nutritionGoals
-      });
-    } catch (error) {
-      console.error('Error saving preferences:', error);
-    }
-  };
-
-  // Manual sync function for cross-device reliability
-  const syncData = async () => {
-    setLoading(true);
-    try {
-      console.log('Syncing data from cloud...');
-      await loadData();
-      console.log('Data synced successfully');
-    } catch (error) {
-      console.error('Error syncing data:', error);
-      alert('Failed to sync data. Please check your connection.');
-    }
-  };
 
   // Progressive program structure - changes every 4 weeks
   const getPhase = (week: number) => {
@@ -237,79 +202,77 @@ const TrainingProgram = () => {
     const currentValue = exerciseWeights[key] || getLastUsedWeight(day, exerciseIndex, currentWeek);
     const newWeight = Math.max(0, currentValue + change);
 
+    // Update state
     setExerciseWeights(prev => ({
       ...prev,
       [key]: newWeight
     }));
 
-    // Auto-save to Supabase immediately
+    // Save to Supabase immediately with the new value
     try {
-      const updatedExerciseWeights = {
-        ...exerciseWeights,
-        [key]: newWeight
-      };
-
       await DatabaseService.savePreferences({
         current_week: currentWeek,
         completed_exercises: completedExercises,
-        exercise_weights: updatedExerciseWeights,
+        exercise_weights: {
+          ...exerciseWeights,
+          [key]: newWeight
+        },
         nutrition_goals: nutritionGoals
       });
-      console.log('Exercise weight auto-saved to cloud');
     } catch (error) {
-      console.error('Failed to auto-save exercise weight:', error);
+      console.error('Failed to save exercise weight:', error);
     }
   };
 
   const toggleExercise = async (day: string, exerciseIndex: number) => {
     const key = `${day}-${exerciseIndex}-week${currentWeek}`;
+    const newValue = !completedExercises[key];
+
+    // Update state
     setCompletedExercises(prev => ({
       ...prev,
-      [key]: !prev[key]
+      [key]: newValue
     }));
 
-    // Auto-save to Supabase immediately
+    // Save to Supabase immediately with the new value
     try {
-      const updatedCompletedExercises = {
-        ...completedExercises,
-        [key]: !completedExercises[key]
-      };
-
       await DatabaseService.savePreferences({
         current_week: currentWeek,
-        completed_exercises: updatedCompletedExercises,
+        completed_exercises: {
+          ...completedExercises,
+          [key]: newValue
+        },
         exercise_weights: exerciseWeights,
         nutrition_goals: nutritionGoals
       });
-      console.log('Exercise completion auto-saved to cloud');
     } catch (error) {
-      console.error('Failed to auto-save exercise completion:', error);
+      console.error('Failed to save exercise completion:', error);
     }
   };
 
   const toggleNutritionGoal = async (day: string, goalIndex: number) => {
     const key = `${day}-nutrition-${goalIndex}-week${currentWeek}`;
+    const newValue = !nutritionGoals[key];
+
+    // Update state
     setNutritionGoals(prev => ({
       ...prev,
-      [key]: !prev[key]
+      [key]: newValue
     }));
 
-    // Auto-save to Supabase immediately
+    // Save to Supabase immediately with the new value
     try {
-      const updatedNutritionGoals = {
-        ...nutritionGoals,
-        [key]: !nutritionGoals[key]
-      };
-
       await DatabaseService.savePreferences({
         current_week: currentWeek,
         completed_exercises: completedExercises,
         exercise_weights: exerciseWeights,
-        nutrition_goals: updatedNutritionGoals
+        nutrition_goals: {
+          ...nutritionGoals,
+          [key]: newValue
+        }
       });
-      console.log('Nutrition goal auto-saved to cloud');
     } catch (error) {
-      console.error('Failed to auto-save nutrition goal:', error);
+      console.error('Failed to save nutrition goal:', error);
     }
   };
 
@@ -492,15 +455,6 @@ const TrainingProgram = () => {
 
             <div className="flex gap-2">
               <button
-                onClick={syncData}
-                disabled={loading}
-                className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Sync data across devices"
-              >
-                <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
-                Sync
-              </button>
-              <button
                 onClick={() => setShowHistory(true)}
                 className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
               >
@@ -517,12 +471,6 @@ const TrainingProgram = () => {
             </div>
           </div>
 
-          {/* Sync Status */}
-          {lastSyncTime && (
-            <div className="mt-2 text-xs text-gray-500 text-center">
-              Last synced: {lastSyncTime.toLocaleTimeString()}
-            </div>
-          )}
 
           {/* Progress Bar */}
           <div className="mt-3 bg-gray-200 rounded-full h-2">
