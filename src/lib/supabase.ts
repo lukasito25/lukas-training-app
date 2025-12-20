@@ -40,10 +40,13 @@ export interface CompletedSession {
 export interface UserPreferences {
   id?: string
   user_id?: string
-  current_week: number
-  completed_exercises: Record<string, boolean>
-  exercise_weights: Record<string, number>
-  nutrition_goals: Record<string, boolean>
+  meso: number
+  week: number
+  day: string
+  done: Record<string, boolean>
+  weights: Record<string, number>
+  done_warmup: Record<string, boolean>
+  done_cool: Record<string, boolean>
   created_at?: string
   updated_at?: string
 }
@@ -135,10 +138,13 @@ export class DatabaseService {
       if (error.code === 'PGRST116') {
         // No row found, return default
         return {
-          current_week: 1,
-          completed_exercises: {},
-          exercise_weights: {},
-          nutrition_goals: {}
+          meso: 1,
+          week: 1,
+          day: "push",
+          done: {},
+          weights: {},
+          done_warmup: {},
+          done_cool: {}
         }
       }
       throw error

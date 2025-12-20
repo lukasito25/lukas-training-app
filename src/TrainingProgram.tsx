@@ -1,16 +1,69 @@
 import { useState, useEffect } from "react";
-import { CheckCircle2, Circle, RotateCcw, Trophy, Calendar, Clock, Plus, Minus, Play, FileText, Save, History, X } from "lucide-react";
+import { CheckCircle2, Circle, RotateCcw, Clock, Plus, Minus, Play, Dumbbell, Heart, Zap, X, Sun, Moon, Pill, Apple, Flame, Wind, BedDouble } from "lucide-react";
 import { DatabaseService } from './lib/supabase';
 
-const TrainingProgram = () => {
-  const [currentWeek, setCurrentWeek] = useState(1);
-  const [completedExercises, setCompletedExercises] = useState<Record<string, boolean>>({});
-  const [exerciseWeights, setExerciseWeights] = useState<Record<string, number>>({});
-  const [nutritionGoals, setNutritionGoals] = useState<Record<string, boolean>>({});
-  const [completedSessions, setCompletedSessions] = useState<any[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
+const MuscleMap = ({ muscles, size = "large" }: { muscles: string[], size?: "small" | "large" }) => {
+  const mc = { chest: "#ef4444", upper_chest: "#f87171", back: "#3b82f6", lats: "#60a5fa", traps: "#2563eb", shoulders: "#f59e0b", front_delts: "#fbbf24", lateral_delts: "#f59e0b", rear_delts: "#d97706", biceps: "#10b981", triceps: "#14b8a6", forearms: "#34d399", quads: "#8b5cf6", hamstrings: "#a78bfa", glutes: "#7c3aed", calves: "#c4b5fd", core: "#ec4899", erectors: "#6366f1" };
+  const w = size === "small" ? 50 : 100, h = size === "small" ? 70 : 140;
+  const has = (m: string) => muscles.includes(m);
+  return (
+    <svg viewBox="0 0 100 140" width={w} height={h} className="mx-auto">
+      <ellipse cx="50" cy="12" rx="8" ry="10" fill="#d4a574"/>
+      <path d="M42 20 L35 35 L65 35 L58 20 Z" fill={has('traps') ? mc.traps : '#e5e7eb'}/>
+      <ellipse cx="28" cy="38" rx="10" ry="6" fill={has('shoulders')||has('front_delts')||has('lateral_delts') ? mc.shoulders : '#e5e7eb'}/>
+      <ellipse cx="72" cy="38" rx="10" ry="6" fill={has('shoulders')||has('front_delts')||has('lateral_delts') ? mc.shoulders : '#e5e7eb'}/>
+      <path d="M35 35 L35 55 Q50 62 65 55 L65 35 Z" fill={has('chest')||has('upper_chest') ? mc.chest : '#e5e7eb'}/>
+      <rect x="18" y="40" width="8" height="22" rx="3" fill={has('biceps')||has('triceps') ? mc.biceps : '#e5e7eb'}/>
+      <rect x="74" y="40" width="8" height="22" rx="3" fill={has('biceps')||has('triceps') ? mc.triceps : '#e5e7eb'}/>
+      <rect x="38" y="55" width="24" height="25" rx="2" fill={has('core') ? mc.core : '#e5e7eb'}/>
+      <path d="M35 40 L28 45 L28 60 L35 55 Z" fill={has('back')||has('lats') ? mc.lats : '#e5e7eb'}/>
+      <path d="M65 40 L72 45 L72 60 L65 55 Z" fill={has('back')||has('lats') ? mc.lats : '#e5e7eb'}/>
+      <rect x="35" y="82" width="12" height="30" rx="3" fill={has('quads') ? mc.quads : '#e5e7eb'}/>
+      <rect x="53" y="82" width="12" height="30" rx="3" fill={has('quads') ? mc.quads : '#e5e7eb'}/>
+      <rect x="35" y="78" width="12" height="6" rx="2" fill={has('glutes')||has('hamstrings') ? mc.hamstrings : '#e5e7eb'}/>
+      <rect x="53" y="78" width="12" height="6" rx="2" fill={has('glutes')||has('hamstrings') ? mc.hamstrings : '#e5e7eb'}/>
+      <rect x="36" y="114" width="10" height="18" rx="3" fill={has('calves') ? mc.calves : '#e5e7eb'}/>
+      <rect x="54" y="114" width="10" height="18" rx="3" fill={has('calves') ? mc.calves : '#e5e7eb'}/>
+    </svg>
+  );
+};
+
+interface Exercise {
+  name: string;
+  sets: number | string;
+  reps: string;
+  rest: string;
+  notes: string;
+  muscles: string[];
+  demo: string;
+}
+
+const ExerciseModal = ({ ex, onClose }: { ex: Exercise | null, onClose: () => void }) => {
+  if (!ex) return null;
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-gray-800 rounded-xl max-w-md w-full p-4" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between mb-4"><h3 className="text-lg font-bold text-white">{ex.name}</h3><button onClick={onClose}><X className="w-5 h-5 text-white"/></button></div>
+        {ex.muscles && <div className="bg-gray-700 rounded-lg p-4 mb-4"><MuscleMap muscles={ex.muscles}/><div className="flex flex-wrap gap-1 justify-center mt-3">{ex.muscles.map((m,i)=><span key={i} className="text-xs bg-gray-600 px-2 py-1 rounded capitalize text-white">{m.replace('_',' ')}</span>)}</div></div>}
+        <div className="space-y-2 text-sm text-white"><div className="flex justify-between"><span className="text-gray-400">Sets × Reps</span><span>{ex.sets} × {ex.reps}</span></div><div className="flex justify-between"><span className="text-gray-400">Rest</span><span>{ex.rest}</span></div></div>
+        <div className="mt-4 p-3 bg-gray-700 rounded-lg text-sm text-white">{ex.notes}</div>
+        {ex.demo && <a href={ex.demo} target="_blank" rel="noopener noreferrer" className="mt-4 block w-full text-center bg-blue-600 py-2 rounded-lg text-sm text-white"><Play className="w-4 h-4 inline mr-2"/>Demo</a>}
+      </div>
+    </div>
+  );
+};
+
+export default function GymCompanion() {
+  const [meso, setMeso] = useState(1);
+  const [week, setWeek] = useState(1);
+  const [day, setDay] = useState("push");
+  const [view, setView] = useState("workout");
+  const [done, setDone] = useState<Record<string, boolean>>({});
+  const [weights, setWeights] = useState<Record<string, number>>({});
+  const [doneWarmup, setDoneWarmup] = useState<Record<string, boolean>>({});
+  const [doneCool, setDoneCool] = useState<Record<string, boolean>>({});
+  const [selEx, setSelEx] = useState<Exercise | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
   // Load data from Supabase on component mount
   useEffect(() => {
@@ -19,23 +72,17 @@ const TrainingProgram = () => {
 
   const loadData = async () => {
     try {
-      const [preferences, sessions] = await Promise.all([
-        DatabaseService.getPreferences(),
-        DatabaseService.getSessions()
-      ]);
+      const preferences = await DatabaseService.getPreferences();
 
       if (preferences) {
-        setCurrentWeek(preferences.current_week);
-        setCompletedExercises(preferences.completed_exercises || {});
-        setExerciseWeights(preferences.exercise_weights || {});
-        setNutritionGoals(preferences.nutrition_goals || {});
-      } else {
-        setCompletedExercises({});
-        setExerciseWeights({});
-        setNutritionGoals({});
+        setMeso(preferences.meso || 1);
+        setWeek(preferences.week || 1);
+        setDay(preferences.day || "push");
+        setDone(preferences.done || {});
+        setWeights(preferences.weights || {});
+        setDoneWarmup(preferences.done_warmup || {});
+        setDoneCool(preferences.done_cool || {});
       }
-
-      setCompletedSessions(sessions || []);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -43,866 +90,625 @@ const TrainingProgram = () => {
     }
   };
 
-  // Removed problematic auto-save useEffect that was causing data loss
-
-
-
-  // Progressive program structure - changes every 4 weeks
-  const getPhase = (week: number) => {
-    if (week <= 4) return "foundation";
-    if (week <= 8) return "growth";
-    return "intensity";
-  };
-
-  const phaseConfig = {
-    foundation: {
-      name: "Foundation Phase",
-      description: "Building movement patterns and base strength",
-      color: "bg-blue-600"
-    },
-    growth: {
-      name: "Growth Phase",
-      description: "Higher volume for maximum muscle growth",
-      color: "bg-green-600"
-    },
-    intensity: {
-      name: "Intensity Phase",
-      description: "Advanced techniques and peak strength",
-      color: "bg-red-600"
+  const saveData = async (newData: any) => {
+    try {
+      await DatabaseService.savePreferences({
+        meso,
+        week,
+        day,
+        done,
+        weights,
+        done_warmup: doneWarmup,
+        done_cool: doneCool,
+        ...newData
+      });
+    } catch (error) {
+      console.error('Failed to save data:', error);
     }
   };
 
-  // Daily nutrition goals
-  const dailyNutritionGoals = [
-    { name: "Meal 1: Protein (39g)", icon: "🥩", category: "protein" },
-    { name: "Meal 2: Protein (39g)", icon: "🍗", category: "protein" },
-    { name: "Meal 3: Protein (39g)", icon: "🥛", category: "protein" },
-    { name: "Meal 4: Protein (39g)", icon: "🍳", category: "protein" },
-    { name: "Water: 2-3 Liters", icon: "💧", category: "hydration" },
-    { name: "Vegetables/Fruits", icon: "🥗", category: "micronutrients" },
-    { name: "Healthy Fats", icon: "🥑", category: "fats" },
-    { name: "Complex Carbs", icon: "🍠", category: "carbs" },
-    { name: "Creatine", icon: "💊", category: "supplements" },
-    { name: "Omega-3", icon: "🐟", category: "supplements" },
-    { name: "Ashwagandha", icon: "🌿", category: "supplements" },
-    { name: "Lion's Mane", icon: "🍄", category: "supplements" },
-    { name: "B-Complex", icon: "💉", category: "supplements" }
+  const deload = week === 8;
+  const mesos = { 1: "Foundation", 2: "Volume I", 3: "Intensity I", 4: "Volume II", 5: "Intensity II", 6: "Peak" };
+
+  const warmups = {
+    push: { name: "Push Warm-Up (8-10 min)", science: "Dynamic stretching +1.3% performance vs static -3.7% (Behm 2016)", items: [
+      { name: "Arm Circles", val: "30s each dir", notes: "Small to large", type: "dynamic" },
+      { name: "Band Pull-Aparts", val: "15-20 reps", notes: "Squeeze shoulder blades", type: "activation" },
+      { name: "Wall Slides", val: "10-12 reps", notes: "Keep wall contact", type: "mobility" },
+      { name: "Shoulder Dislocations", val: "10-12 reps", notes: "Band or stick", type: "mobility" },
+      { name: "Incline Push-Ups", val: "10-15 reps", notes: "Activation set", type: "activation" },
+      { name: "Empty Bar Press", val: "2×10", notes: "40% then 60%", type: "ramp" },
+      { name: "Thoracic Rotations", val: "8 each side", notes: "Follow hand with eyes", type: "mobility" },
+      { name: "Scapular Push-Ups", val: "10-12 reps", notes: "Protract/retract only", type: "activation" }
+    ]},
+    pull: { name: "Pull Warm-Up (8-10 min)", science: "Foam rolling +4% flexibility without performance loss", items: [
+      { name: "Cat-Cow Stretch", val: "10 cycles", notes: "Full spinal ROM", type: "mobility" },
+      { name: "Thoracic Foam Roll", val: "60 sec", notes: "Pause on tight spots", type: "SMR" },
+      { name: "Lat Foam Roll", val: "30s each", notes: "Armpit to mid-back", type: "SMR" },
+      { name: "Band Face Pulls", val: "15-20 reps", notes: "External rotate at top", type: "activation" },
+      { name: "Scapular Pull-Ups", val: "10-12 reps", notes: "No elbow bend", type: "activation" },
+      { name: "Dead Hangs", val: "20-30 sec", notes: "Decompress spine", type: "mobility" },
+      { name: "Band Rows", val: "15-20 reps", notes: "Feel lats engage", type: "activation" },
+      { name: "Hip Hinges", val: "10-12 reps", notes: "PVC on back", type: "movement" }
+    ]},
+    legs: { name: "Legs Warm-Up (10 min)", science: "Progressive loading through full ROM prevents cartilage damage", items: [
+      { name: "Hip Circles", val: "10 each dir", notes: "Large controlled circles", type: "mobility" },
+      { name: "Leg Swings Front/Back", val: "15 each leg", notes: "Keep torso stable", type: "dynamic" },
+      { name: "Leg Swings Lateral", val: "15 each leg", notes: "Open hip", type: "dynamic" },
+      { name: "Glute Bridges", val: "15-20 reps", notes: "2 sec hold at top", type: "activation" },
+      { name: "Walking Lunges", val: "10 each leg", notes: "Arms overhead", type: "dynamic" },
+      { name: "Lateral Band Walks", val: "15 each dir", notes: "Stay low", type: "activation" },
+      { name: "World's Greatest Stretch", val: "5 each side", notes: "Lunge+rotate+hamstring", type: "mobility" },
+      { name: "Goblet Squats", val: "2×10", notes: "Full depth, pause", type: "ramp" },
+      { name: "Quad Foam Roll", val: "60 sec", notes: "Include IT band", type: "SMR" }
+    ]},
+    arms: { name: "Arms Warm-Up (8 min)", science: "Zone 2 cardio as active warm-up while building aerobic base", items: [
+      { name: "Zone 2 Cardio", val: "5 min", notes: "60-70% HR, conversational", type: "cardio" },
+      { name: "Arm Circles", val: "30s each", notes: "Both directions", type: "dynamic" },
+      { name: "Wrist Circles", val: "30s each", notes: "Important for grip", type: "mobility" },
+      { name: "Band Curls", val: "15-20 reps", notes: "Light, feel biceps", type: "activation" },
+      { name: "Band Pushdowns", val: "15-20 reps", notes: "Light, feel triceps", type: "activation" },
+      { name: "Shoulder Dislocations", val: "10 reps", notes: "Prepare shoulders", type: "mobility" }
+    ]}
+  };
+
+  const cooldowns = {
+    push: { name: "Push Cool-Down (5-6 min)", science: "Stretching improves flexibility but does NOT reduce DOMS (Afonso 2021)", items: [
+      { name: "Doorway Chest Stretch", val: "30s each", notes: "Arm at 90°, lean through", type: "static" },
+      { name: "Cross-Body Shoulder", val: "30s each", notes: "Keep shoulder down", type: "static" },
+      { name: "Overhead Triceps", val: "30s each", notes: "Gentle elbow pull", type: "static" },
+      { name: "Lying Pec Stretch", val: "45s each", notes: "Let gravity open chest", type: "static" },
+      { name: "Child's Pose", val: "45 sec", notes: "Sink hips back", type: "static" },
+      { name: "Deep Breathing", val: "60 sec", notes: "4-4-6 pattern", type: "recovery" }
+    ]},
+    pull: { name: "Pull Cool-Down (5-6 min)", science: "30-second holds sufficient for flexibility", items: [
+      { name: "Child's Pose", val: "45 sec", notes: "Focus on lat stretch", type: "static" },
+      { name: "Seated Spinal Twist", val: "30s each", notes: "Rotate from thoracic", type: "static" },
+      { name: "Standing Lat Stretch", val: "30s each", notes: "Lean away from door", type: "static" },
+      { name: "Bicep Wall Stretch", val: "30s each", notes: "Palm on wall, rotate", type: "static" },
+      { name: "Cat-Cow Cooldown", val: "8-10 cycles", notes: "Gentle, breathe", type: "mobility" },
+      { name: "Deep Breathing", val: "60 sec", notes: "4-4-6 pattern", type: "recovery" }
+    ]},
+    legs: { name: "Legs Cool-Down (6 min)", science: "Chronic stretching improves ROM", items: [
+      { name: "Standing Quad Stretch", val: "30s each", notes: "Knees together", type: "static" },
+      { name: "Seated Hamstring", val: "45 sec", notes: "Hinge at hips", type: "static" },
+      { name: "Figure-4/Pigeon", val: "45s each", notes: "Deep glute stretch", type: "static" },
+      { name: "Hip Flexor Stretch", val: "30s each", notes: "Posterior pelvic tilt", type: "static" },
+      { name: "Lying Spinal Twist", val: "30s each", notes: "Look opposite", type: "static" },
+      { name: "Deep Breathing", val: "60 sec", notes: "4-4-6 pattern", type: "recovery" }
+    ]},
+    arms: { name: "Arms Cool-Down (5 min)", science: "Reverse kegels improve pelvic floor function", items: [
+      { name: "Bicep Wall Stretch", val: "30s each", notes: "Full arm stretch", type: "static" },
+      { name: "Tricep Overhead", val: "30s each", notes: "Gentle pull", type: "static" },
+      { name: "Wrist Flexor Stretch", val: "20s each", notes: "Pull fingers back", type: "static" },
+      { name: "Wrist Extensor Stretch", val: "20s each", notes: "Push hand down", type: "static" },
+      { name: "90/90 Hip Stretch", val: "45s each", notes: "Internal/external rotation", type: "mobility" },
+      { name: "Reverse Kegels", val: "10-15 reps", notes: "Relax on inhale, 3-5s hold", type: "pelvic" },
+      { name: "Deep Breathing", val: "60 sec", notes: "Parasympathetic activation", type: "recovery" }
+    ]}
+  };
+
+  const supps = {
+    morning: [
+      { name: "Vitamin D3", dose: "2000-4000 IU", ev: "Strong", note: "Target 75-100 nmol/L" },
+      { name: "Vitamin K2 (MK-7)", dose: "100-200 μg", ev: "Strong", note: "Directs calcium to bones" },
+      { name: "Omega-3 (EPA/DHA)", dose: "2-3g total", ev: "Strong", note: "Higher EPA ratio" },
+      { name: "Magnesium L-Threonate", dose: "1000-2000mg", ev: "Moderate", note: "Crosses BBB" }
+    ],
+    preWorkout: [
+      { name: "Creatine Monohydrate", dose: "5g", ev: "Very Strong", note: "Most proven supplement" },
+      { name: "Collagen + Vit C", dose: "10-15g + 50mg", ev: "Moderate", note: "Doubles collagen synthesis" },
+      { name: "L-Citrulline", dose: "6-8g", ev: "Moderate", note: "Blood flow, pump" }
+    ],
+    postWorkout: [
+      { name: "Whey Protein", dose: "30-40g", ev: "Strong", note: "~3g leucine for MPS" },
+      { name: "Creatine (if not pre)", dose: "5g", ev: "Very Strong", note: "Timing flexible" }
+    ],
+    evening: [
+      { name: "Ashwagandha KSM-66", dose: "600mg", ev: "Strong", note: "↓Cortisol, +15% T" },
+      { name: "Magnesium Glycinate", dose: "200-400mg", ev: "Strong", note: "Improves sleep" },
+      { name: "Zinc", dose: "15-30mg", ev: "Moderate", note: "Only if diet low" }
+    ],
+    preSleep: [
+      { name: "Casein Protein", dose: "30-40g", ev: "Strong", note: "+22% overnight MPS" },
+      { name: "Glycine", dose: "3g", ev: "Moderate", note: "Sleep + collagen" }
+    ],
+    testosterone: [
+      { name: "Tongkat Ali", dose: "200-400mg", ev: "Moderate", note: "Best for low-T" },
+      { name: "Fenugreek", dose: "500-600mg", ev: "Moderate", note: "Free testosterone" },
+      { name: "L-Citrulline", dose: "3-6g daily", ev: "Moderate", note: "Erectile function" }
+    ],
+    longevity: [
+      { name: "Berberine", dose: "500mg 2-3x", ev: "Strong", note: "Like metformin" },
+      { name: "CoQ10/Ubiquinol", dose: "100-200mg", ev: "Moderate", note: "Mitochondrial" }
+    ]
+  };
+
+  const nutrition = {
+    targets: { cal: "2800-3000", protein: "170-185g (2.2g/kg)", carbs: "350-400g", fats: "70-90g" },
+    window: "12pm - 8pm (16:8)",
+    meals: [
+      { time: "12pm", name: "Break-Fast", p: "40g", note: "High protein, moderate carbs" },
+      { time: "3-4pm", name: "Pre-Workout", p: "40g", note: "Include carbs for fuel" },
+      { time: "7:30-8pm", name: "Post-Workout", p: "40-50g", note: "High carbs for recovery" },
+      { time: "Before bed", name: "Pre-Sleep", p: "40g casein", note: "Slow-digesting" }
+    ]
+  };
+
+  const exercises = {
+    push: {
+      1: [
+        { name: "Barbell Bench Press", sets: 4, reps: "6-8", rest: "3 min", notes: "Arch back, leg drive", muscles: ["chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress" },
+        { name: "Incline Barbell Press", sets: 4, reps: "8-10", rest: "2.5 min", notes: "30° angle, upper chest", muscles: ["upper_chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralClavicular/BBInclineBenchPress" },
+        { name: "Overhead Press", sets: 4, reps: "6-8", rest: "2.5 min", notes: "Shoulder mass", muscles: ["front_delts", "lateral_delts", "triceps", "traps"], demo: "https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress" },
+        { name: "Barbell Shrugs", sets: 4, reps: "10-12", rest: "90 sec", notes: "TRAP PRIORITY", muscles: ["traps"], demo: "https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug" },
+        { name: "Lateral Raises", sets: 3, reps: "12-15", rest: "60 sec", notes: "Slight lean forward", muscles: ["lateral_delts"], demo: "https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise" },
+        { name: "Weighted Dips", sets: 3, reps: "8-10", rest: "2 min", notes: "Forward lean for chest", muscles: ["chest", "triceps", "front_delts"], demo: "https://exrx.net/WeightExercises/PectoralSternal/WtChestDip" }
+      ],
+      2: [
+        { name: "Barbell Bench Press", sets: 5, reps: "6-10", rest: "3 min", notes: "Volume accumulation", muscles: ["chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress" },
+        { name: "Incline DB Press", sets: 4, reps: "8-12", rest: "2.5 min", notes: "Upper chest", muscles: ["upper_chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralClavicular/DBInclineBenchPress" },
+        { name: "Standing OHP", sets: 4, reps: "8-10", rest: "2.5 min", notes: "Full body stab", muscles: ["front_delts", "lateral_delts", "triceps", "core"], demo: "https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress" },
+        { name: "Barbell Shrugs", sets: 5, reps: "10-15", rest: "90 sec", notes: "TRAP volume", muscles: ["traps"], demo: "https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug" },
+        { name: "Farmer's Walks", sets: 3, reps: "40m", rest: "90 sec", notes: "TRAP/GRIP", muscles: ["traps", "forearms", "core"], demo: "" },
+        { name: "Lateral Raises", sets: 4, reps: "12-15", rest: "60 sec", notes: "Width", muscles: ["lateral_delts"], demo: "https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise" },
+        { name: "Cable Crossovers", sets: 3, reps: "12-15", rest: "60 sec", notes: "Chest detail", muscles: ["chest"], demo: "https://exrx.net/WeightExercises/PectoralSternal/CBStandingFly" }
+      ],
+      3: [
+        { name: "Barbell Bench Press", sets: 5, reps: "4-6", rest: "4 min", notes: "Strength focus", muscles: ["chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress" },
+        { name: "Incline BB Press", sets: 4, reps: "5-8", rest: "3 min", notes: "Heavy upper", muscles: ["upper_chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralClavicular/BBInclineBenchPress" },
+        { name: "Push Press", sets: 4, reps: "5-8", rest: "3 min", notes: "Leg drive allowed", muscles: ["front_delts", "lateral_delts", "triceps", "traps"], demo: "https://exrx.net/WeightExercises/DeltoidAnterior/BBPushPress" },
+        { name: "Barbell Shrugs", sets: 4, reps: "8-10", rest: "2 min", notes: "Heavy TRAP", muscles: ["traps"], demo: "https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug" },
+        { name: "Lateral Raises", sets: 3, reps: "10-12", rest: "60 sec", notes: "Strict form", muscles: ["lateral_delts"], demo: "https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise" }
+      ],
+      4: [
+        { name: "Barbell Bench Press", sets: 5, reps: "8-12", rest: "2.5 min", notes: "Peak volume", muscles: ["chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress" },
+        { name: "Incline DB Press", sets: 4, reps: "10-15", rest: "2 min", notes: "High rep", muscles: ["upper_chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralClavicular/DBInclineBenchPress" },
+        { name: "Decline Press", sets: 3, reps: "10-12", rest: "2 min", notes: "Lower chest", muscles: ["chest", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralSternal/BBDeclineBenchPress" },
+        { name: "OHP", sets: 4, reps: "8-12", rest: "2 min", notes: "Volume shoulders", muscles: ["front_delts", "lateral_delts", "triceps"], demo: "https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress" },
+        { name: "BB Shrugs", sets: 5, reps: "12-15", rest: "90 sec", notes: "Peak TRAP vol", muscles: ["traps"], demo: "https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug" },
+        { name: "DB Shrugs", sets: 3, reps: "15-20", rest: "60 sec", notes: "TRAP pump", muscles: ["traps"], demo: "https://exrx.net/WeightExercises/TrapeziusUpper/DBShrug" },
+        { name: "Lat Raises Drop", sets: 4, reps: "12-15+8", rest: "60 sec", notes: "Drop 30%", muscles: ["lateral_delts"], demo: "https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise" },
+        { name: "Cable Flyes", sets: 3, reps: "15-20", rest: "60 sec", notes: "Pump", muscles: ["chest"], demo: "https://exrx.net/WeightExercises/PectoralSternal/CBStandingFly" }
+      ],
+      5: [
+        { name: "Barbell Bench Press", sets: 6, reps: "3-5", rest: "4 min", notes: "Peak strength", muscles: ["chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress" },
+        { name: "Incline BB Press", sets: 4, reps: "4-6", rest: "3.5 min", notes: "Heavy", muscles: ["upper_chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralClavicular/BBInclineBenchPress" },
+        { name: "Push Press", sets: 5, reps: "4-6", rest: "3 min", notes: "Max power", muscles: ["front_delts", "lateral_delts", "triceps", "traps"], demo: "https://exrx.net/WeightExercises/DeltoidAnterior/BBPushPress" },
+        { name: "Heavy Shrugs", sets: 4, reps: "6-8", rest: "2.5 min", notes: "Max load", muscles: ["traps"], demo: "https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug" },
+        { name: "Lateral Raises", sets: 3, reps: "10-12", rest: "60 sec", notes: "Maint", muscles: ["lateral_delts"], demo: "https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise" }
+      ],
+      6: [
+        { name: "Barbell Bench Press", sets: 4, reps: "6-8", rest: "3 min", notes: "Peak perf", muscles: ["chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress" },
+        { name: "Incline DB Press", sets: 4, reps: "8-10", rest: "2.5 min", notes: "Refinement", muscles: ["upper_chest", "front_delts", "triceps"], demo: "https://exrx.net/WeightExercises/PectoralClavicular/DBInclineBenchPress" },
+        { name: "OHP", sets: 4, reps: "6-10", rest: "2.5 min", notes: "Shoulder peak", muscles: ["front_delts", "lateral_delts", "triceps"], demo: "https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress" },
+        { name: "Barbell Shrugs", sets: 4, reps: "10-12", rest: "90 sec", notes: "TRAP peak", muscles: ["traps"], demo: "https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug" },
+        { name: "Farmer's Walks", sets: 3, reps: "40m", rest: "90 sec", notes: "Finisher", muscles: ["traps", "forearms", "core"], demo: "" },
+        { name: "Lateral Raises", sets: 4, reps: "12-15", rest: "60 sec", notes: "Detail", muscles: ["lateral_delts"], demo: "https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise" }
+      ]
+    },
+    pull: {
+      1: [
+        { name: "Deadlift", sets: 4, reps: "5-6", rest: "4 min", notes: "Full posterior chain", muscles: ["back", "lats", "traps", "hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/ErectorSpinae/BBDeadlift" },
+        { name: "Barbell Rows", sets: 4, reps: "6-8", rest: "2.5 min", notes: "Back thickness", muscles: ["back", "lats", "traps", "biceps"], demo: "https://exrx.net/WeightExercises/BackGeneral/BBBentOverRow" },
+        { name: "Weighted Pull-Ups", sets: 4, reps: "6-8", rest: "2.5 min", notes: "V-taper width", muscles: ["lats", "biceps", "rear_delts"], demo: "https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup" },
+        { name: "Seated Cable Rows", sets: 3, reps: "10-12", rest: "2 min", notes: "Mid-back focus", muscles: ["back", "lats", "traps", "biceps"], demo: "https://exrx.net/WeightExercises/BackGeneral/CBSeatedRow" },
+        { name: "Face Pulls", sets: 4, reps: "15-20", rest: "60 sec", notes: "Rear delt/rotator", muscles: ["rear_delts", "traps"], demo: "https://exrx.net/WeightExercises/DeltoidPosterior/CBFacePull" },
+        { name: "Barbell Curls", sets: 3, reps: "10-12", rest: "90 sec", notes: "Bicep mass", muscles: ["biceps", "forearms"], demo: "https://exrx.net/WeightExercises/Biceps/BBCurl" }
+      ],
+      2: [
+        { name: "Deadlift", sets: 4, reps: "6-8", rest: "3.5 min", notes: "Volume DL", muscles: ["back", "lats", "traps", "hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/ErectorSpinae/BBDeadlift" },
+        { name: "Weighted Pull-Ups", sets: 5, reps: "6-10", rest: "2.5 min", notes: "Lat width", muscles: ["lats", "biceps", "rear_delts"], demo: "https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup" },
+        { name: "Barbell Rows", sets: 4, reps: "8-10", rest: "2.5 min", notes: "Row volume", muscles: ["back", "lats", "traps", "biceps"], demo: "https://exrx.net/WeightExercises/BackGeneral/BBBentOverRow" },
+        { name: "T-Bar Rows", sets: 3, reps: "8-12", rest: "2 min", notes: "Thickness", muscles: ["back", "lats", "traps", "biceps"], demo: "https://exrx.net/WeightExercises/BackGeneral/LVTBarRow" },
+        { name: "Lat Pulldowns", sets: 3, reps: "10-12", rest: "2 min", notes: "Width", muscles: ["lats", "biceps"], demo: "https://exrx.net/WeightExercises/LatissimusDorsi/CBFrontPulldown" },
+        { name: "Face Pulls", sets: 4, reps: "15-20", rest: "60 sec", notes: "Rear delt vol", muscles: ["rear_delts", "traps"], demo: "https://exrx.net/WeightExercises/DeltoidPosterior/CBFacePull" },
+        { name: "Rear Delt Flyes", sets: 3, reps: "15-20", rest: "60 sec", notes: "Isolation", muscles: ["rear_delts"], demo: "https://exrx.net/WeightExercises/DeltoidPosterior/DBRearDeltRaise" },
+        { name: "Barbell Curls", sets: 3, reps: "10-12", rest: "90 sec", notes: "Bicep", muscles: ["biceps", "forearms"], demo: "https://exrx.net/WeightExercises/Biceps/BBCurl" }
+      ],
+      3: [
+        { name: "Deadlift", sets: 5, reps: "3-5", rest: "4.5 min", notes: "Strength DL", muscles: ["back", "lats", "traps", "hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/ErectorSpinae/BBDeadlift" },
+        { name: "Weighted Pull-Ups", sets: 4, reps: "5-8", rest: "3 min", notes: "Heavy", muscles: ["lats", "biceps", "rear_delts"], demo: "https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup" },
+        { name: "Pendlay Rows", sets: 4, reps: "5-8", rest: "2.5 min", notes: "Explosive", muscles: ["back", "lats", "traps", "biceps"], demo: "https://exrx.net/WeightExercises/BackGeneral/BBPendlayRow" },
+        { name: "Rack Pulls", sets: 3, reps: "5-8", rest: "3 min", notes: "Upper back", muscles: ["back", "traps", "erectors"], demo: "https://exrx.net/WeightExercises/ErectorSpinae/BBRackPull" },
+        { name: "Face Pulls", sets: 3, reps: "12-15", rest: "60 sec", notes: "Health", muscles: ["rear_delts", "traps"], demo: "https://exrx.net/WeightExercises/DeltoidPosterior/CBFacePull" },
+        { name: "Hammer Curls", sets: 3, reps: "8-10", rest: "90 sec", notes: "Brachialis", muscles: ["biceps", "forearms"], demo: "https://exrx.net/WeightExercises/Brachioradialis/DBHammerCurl" }
+      ],
+      4: [
+        { name: "Deadlift", sets: 4, reps: "8-10", rest: "3 min", notes: "Volume DL", muscles: ["back", "lats", "traps", "hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/ErectorSpinae/BBDeadlift" },
+        { name: "Lat Pulldowns", sets: 5, reps: "10-15", rest: "90 sec", notes: "High vol lats", muscles: ["lats", "biceps"], demo: "https://exrx.net/WeightExercises/LatissimusDorsi/CBFrontPulldown" },
+        { name: "Barbell Rows", sets: 4, reps: "10-12", rest: "2 min", notes: "Row vol", muscles: ["back", "lats", "traps", "biceps"], demo: "https://exrx.net/WeightExercises/BackGeneral/BBBentOverRow" },
+        { name: "Seated Cable Rows", sets: 4, reps: "12-15", rest: "90 sec", notes: "Multiple grips", muscles: ["back", "lats", "traps", "biceps"], demo: "https://exrx.net/WeightExercises/BackGeneral/CBSeatedRow" },
+        { name: "Straight-Arm Pulldowns", sets: 3, reps: "12-15", rest: "60 sec", notes: "Lat iso", muscles: ["lats"], demo: "https://exrx.net/WeightExercises/LatissimusDorsi/CBStraightArmPulldown" },
+        { name: "Face Pulls", sets: 4, reps: "15-20", rest: "60 sec", notes: "Peak rear", muscles: ["rear_delts", "traps"], demo: "https://exrx.net/WeightExercises/DeltoidPosterior/CBFacePull" },
+        { name: "Rear Delt Machine", sets: 3, reps: "15-20", rest: "60 sec", notes: "Pump", muscles: ["rear_delts"], demo: "" },
+        { name: "Cable Curls", sets: 3, reps: "12-15", rest: "60 sec", notes: "Bicep pump", muscles: ["biceps"], demo: "https://exrx.net/WeightExercises/Biceps/CBStandingCurl" }
+      ],
+      5: [
+        { name: "Deadlift", sets: 6, reps: "2-4", rest: "5 min", notes: "Peak strength", muscles: ["back", "lats", "traps", "hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/ErectorSpinae/BBDeadlift" },
+        { name: "Weighted Pull-Ups", sets: 5, reps: "4-6", rest: "3 min", notes: "Max load", muscles: ["lats", "biceps", "rear_delts"], demo: "https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup" },
+        { name: "Barbell Rows", sets: 4, reps: "5-7", rest: "3 min", notes: "Heavy rows", muscles: ["back", "lats", "traps", "biceps"], demo: "https://exrx.net/WeightExercises/BackGeneral/BBBentOverRow" },
+        { name: "Rack Pulls", sets: 4, reps: "4-6", rest: "3 min", notes: "Max upper", muscles: ["back", "traps", "erectors"], demo: "https://exrx.net/WeightExercises/ErectorSpinae/BBRackPull" },
+        { name: "Face Pulls", sets: 3, reps: "12-15", rest: "60 sec", notes: "Health", muscles: ["rear_delts", "traps"], demo: "https://exrx.net/WeightExercises/DeltoidPosterior/CBFacePull" }
+      ],
+      6: [
+        { name: "Deadlift", sets: 4, reps: "5-6", rest: "4 min", notes: "Peak perf", muscles: ["back", "lats", "traps", "hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/ErectorSpinae/BBDeadlift" },
+        { name: "Weighted Pull-Ups", sets: 4, reps: "6-8", rest: "2.5 min", notes: "V-taper", muscles: ["lats", "biceps", "rear_delts"], demo: "https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup" },
+        { name: "Barbell Rows", sets: 4, reps: "8-10", rest: "2.5 min", notes: "Thickness", muscles: ["back", "lats", "traps", "biceps"], demo: "https://exrx.net/WeightExercises/BackGeneral/BBBentOverRow" },
+        { name: "T-Bar Rows", sets: 3, reps: "8-10", rest: "2 min", notes: "Refine", muscles: ["back", "lats", "traps", "biceps"], demo: "https://exrx.net/WeightExercises/BackGeneral/LVTBarRow" },
+        { name: "Face Pulls", sets: 4, reps: "15-20", rest: "60 sec", notes: "Detail", muscles: ["rear_delts", "traps"], demo: "https://exrx.net/WeightExercises/DeltoidPosterior/CBFacePull" },
+        { name: "Barbell Curls", sets: 3, reps: "10-12", rest: "90 sec", notes: "Finish", muscles: ["biceps", "forearms"], demo: "https://exrx.net/WeightExercises/Biceps/BBCurl" }
+      ]
+    },
+    legs: {
+      1: [
+        { name: "Back Squats", sets: 5, reps: "6-8", rest: "3.5 min", notes: "King of mass", muscles: ["quads", "glutes", "hamstrings", "core"], demo: "https://exrx.net/WeightExercises/Quadriceps/BBSquat" },
+        { name: "Romanian Deadlifts", sets: 4, reps: "8-10", rest: "2.5 min", notes: "Posterior chain", muscles: ["hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/GluteusMaximus/BBRomanianDeadlift" },
+        { name: "Leg Press", sets: 4, reps: "10-12", rest: "2.5 min", notes: "Quad volume", muscles: ["quads", "glutes"], demo: "https://exrx.net/WeightExercises/Quadriceps/SL45LegPress" },
+        { name: "Walking Lunges", sets: 3, reps: "12/leg", rest: "2 min", notes: "Unilateral", muscles: ["quads", "glutes", "hamstrings"], demo: "https://exrx.net/WeightExercises/Quadriceps/DBLunge" },
+        { name: "Lying Leg Curls", sets: 4, reps: "10-12", rest: "90 sec", notes: "Ham isolation", muscles: ["hamstrings"], demo: "https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurl" },
+        { name: "Standing Calf Raises", sets: 4, reps: "12-15", rest: "60 sec", notes: "Full ROM", muscles: ["calves"], demo: "https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise" }
+      ],
+      2: [
+        { name: "Back Squats", sets: 5, reps: "8-10", rest: "3 min", notes: "Volume squats", muscles: ["quads", "glutes", "hamstrings", "core"], demo: "https://exrx.net/WeightExercises/Quadriceps/BBSquat" },
+        { name: "Romanian Deadlifts", sets: 4, reps: "10-12", rest: "2.5 min", notes: "RDL volume", muscles: ["hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/GluteusMaximus/BBRomanianDeadlift" },
+        { name: "Front Squats", sets: 4, reps: "8-10", rest: "2.5 min", notes: "Quad dominant", muscles: ["quads", "core"], demo: "https://exrx.net/WeightExercises/Quadriceps/BBFrontSquat" },
+        { name: "Leg Press", sets: 4, reps: "12-15", rest: "2 min", notes: "High vol", muscles: ["quads", "glutes"], demo: "https://exrx.net/WeightExercises/Quadriceps/SL45LegPress" },
+        { name: "Bulgarian Split Squats", sets: 3, reps: "10-12/leg", rest: "90 sec", notes: "Unilateral", muscles: ["quads", "glutes"], demo: "https://exrx.net/WeightExercises/Quadriceps/DBSingleLegSplitSquat" },
+        { name: "Lying Leg Curls", sets: 4, reps: "12-15", rest: "90 sec", notes: "Ham vol", muscles: ["hamstrings"], demo: "https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurl" },
+        { name: "Leg Extensions", sets: 3, reps: "12-15", rest: "60 sec", notes: "Quad iso", muscles: ["quads"], demo: "https://exrx.net/WeightExercises/Quadriceps/LVLegExtension" },
+        { name: "Standing Calf Raises", sets: 4, reps: "15-20", rest: "60 sec", notes: "Vol calves", muscles: ["calves"], demo: "https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise" },
+        { name: "Seated Calf Raises", sets: 3, reps: "15-20", rest: "60 sec", notes: "Soleus", muscles: ["calves"], demo: "https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaise" }
+      ],
+      3: [
+        { name: "Back Squats", sets: 6, reps: "4-6", rest: "4 min", notes: "Strength", muscles: ["quads", "glutes", "hamstrings", "core"], demo: "https://exrx.net/WeightExercises/Quadriceps/BBSquat" },
+        { name: "Romanian Deadlifts", sets: 4, reps: "6-8", rest: "3 min", notes: "Heavy RDLs", muscles: ["hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/GluteusMaximus/BBRomanianDeadlift" },
+        { name: "Hack Squats", sets: 4, reps: "6-10", rest: "2.5 min", notes: "Quad overload", muscles: ["quads"], demo: "https://exrx.net/WeightExercises/Quadriceps/SLHackSquat" },
+        { name: "Walking Lunges", sets: 3, reps: "10/leg", rest: "2 min", notes: "Heavy", muscles: ["quads", "glutes", "hamstrings"], demo: "https://exrx.net/WeightExercises/Quadriceps/DBLunge" },
+        { name: "Nordic Curls", sets: 3, reps: "6-10", rest: "2 min", notes: "Eccentric ham", muscles: ["hamstrings"], demo: "" },
+        { name: "Standing Calf Raises", sets: 4, reps: "10-12", rest: "90 sec", notes: "Heavy", muscles: ["calves"], demo: "https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise" }
+      ],
+      4: [
+        { name: "Back Squats", sets: 5, reps: "10-15", rest: "2.5 min", notes: "High rep", muscles: ["quads", "glutes", "hamstrings", "core"], demo: "https://exrx.net/WeightExercises/Quadriceps/BBSquat" },
+        { name: "Leg Press", sets: 5, reps: "15-20", rest: "2 min", notes: "Peak vol", muscles: ["quads", "glutes"], demo: "https://exrx.net/WeightExercises/Quadriceps/SL45LegPress" },
+        { name: "Romanian Deadlifts", sets: 4, reps: "12-15", rest: "2 min", notes: "Vol RDLs", muscles: ["hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/GluteusMaximus/BBRomanianDeadlift" },
+        { name: "Bulgarian Split Squats", sets: 4, reps: "12-15/leg", rest: "90 sec", notes: "Unilat vol", muscles: ["quads", "glutes"], demo: "https://exrx.net/WeightExercises/Quadriceps/DBSingleLegSplitSquat" },
+        { name: "Leg Extensions", sets: 4, reps: "15-20", rest: "60 sec", notes: "Quad pump", muscles: ["quads"], demo: "https://exrx.net/WeightExercises/Quadriceps/LVLegExtension" },
+        { name: "Lying Leg Curls", sets: 4, reps: "15-20", rest: "60 sec", notes: "Ham pump", muscles: ["hamstrings"], demo: "https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurl" },
+        { name: "Hip Thrusts", sets: 3, reps: "12-15", rest: "90 sec", notes: "Glute focus", muscles: ["glutes", "hamstrings"], demo: "https://exrx.net/WeightExercises/GluteusMaximus/BBHipThrust" },
+        { name: "Calf Raises Drop", sets: 4, reps: "15+10+10", rest: "30 sec", notes: "Triple drop", muscles: ["calves"], demo: "" }
+      ],
+      5: [
+        { name: "Back Squats", sets: 6, reps: "3-5", rest: "4.5 min", notes: "Peak strength", muscles: ["quads", "glutes", "hamstrings", "core"], demo: "https://exrx.net/WeightExercises/Quadriceps/BBSquat" },
+        { name: "Romanian Deadlifts", sets: 5, reps: "4-6", rest: "3.5 min", notes: "Heavy RDLs", muscles: ["hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/GluteusMaximus/BBRomanianDeadlift" },
+        { name: "Leg Press", sets: 4, reps: "6-8", rest: "3 min", notes: "Heavy press", muscles: ["quads", "glutes"], demo: "https://exrx.net/WeightExercises/Quadriceps/SL45LegPress" },
+        { name: "Walking Lunges", sets: 3, reps: "8/leg", rest: "2 min", notes: "Heavy", muscles: ["quads", "glutes", "hamstrings"], demo: "https://exrx.net/WeightExercises/Quadriceps/DBLunge" },
+        { name: "Lying Leg Curls", sets: 3, reps: "8-10", rest: "90 sec", notes: "Heavy", muscles: ["hamstrings"], demo: "https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurl" },
+        { name: "Standing Calf Raises", sets: 4, reps: "8-12", rest: "90 sec", notes: "Heavy", muscles: ["calves"], demo: "https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise" }
+      ],
+      6: [
+        { name: "Back Squats", sets: 5, reps: "6-8", rest: "3.5 min", notes: "Peak perf", muscles: ["quads", "glutes", "hamstrings", "core"], demo: "https://exrx.net/WeightExercises/Quadriceps/BBSquat" },
+        { name: "Romanian Deadlifts", sets: 4, reps: "8-10", rest: "2.5 min", notes: "RDL refine", muscles: ["hamstrings", "glutes", "erectors"], demo: "https://exrx.net/WeightExercises/GluteusMaximus/BBRomanianDeadlift" },
+        { name: "Front Squats", sets: 3, reps: "8-10", rest: "2.5 min", notes: "Quad detail", muscles: ["quads", "core"], demo: "https://exrx.net/WeightExercises/Quadriceps/BBFrontSquat" },
+        { name: "Leg Press", sets: 3, reps: "10-12", rest: "2 min", notes: "Volume", muscles: ["quads", "glutes"], demo: "https://exrx.net/WeightExercises/Quadriceps/SL45LegPress" },
+        { name: "Lying Leg Curls", sets: 4, reps: "10-12", rest: "90 sec", notes: "Ham detail", muscles: ["hamstrings"], demo: "https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurl" },
+        { name: "Standing Calf Raises", sets: 4, reps: "12-15", rest: "60 sec", notes: "Aesthetics", muscles: ["calves"], demo: "https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise" }
+      ]
+    },
+    arms: {
+      1: [
+        { name: "Zone 2 Cardio", sets: 1, reps: "20 min", rest: "-", notes: "60-70% HR", muscles: [], demo: "" },
+        { name: "Barbell Shrugs", sets: 4, reps: "10-15", rest: "90 sec", notes: "TRAP FOCUS", muscles: ["traps"], demo: "https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug" },
+        { name: "Face Pulls", sets: 4, reps: "15-20", rest: "60 sec", notes: "Rear delt", muscles: ["rear_delts", "traps"], demo: "https://exrx.net/WeightExercises/DeltoidPosterior/CBFacePull" },
+        { name: "Barbell Curls", sets: 3, reps: "10-12", rest: "90 sec", notes: "Bicep", muscles: ["biceps"], demo: "https://exrx.net/WeightExercises/Biceps/BBCurl" },
+        { name: "Tricep Pushdowns", sets: 3, reps: "12-15", rest: "60 sec", notes: "Tricep", muscles: ["triceps"], demo: "https://exrx.net/WeightExercises/Triceps/CBPushdown" }
+      ],
+      2: [
+        { name: "Zone 2 Cardio", sets: 1, reps: "20 min", rest: "-", notes: "60-70% HR", muscles: [], demo: "" },
+        { name: "VO2 Intervals", sets: 6, reps: "3 min on/2 off", rest: "-", notes: "80-90% HR", muscles: [], demo: "" },
+        { name: "Farmer's Walks", sets: 3, reps: "40m", rest: "90 sec", notes: "TRAP/GRIP", muscles: ["traps", "forearms", "core"], demo: "" },
+        { name: "Cable Curls", sets: 3, reps: "12-15", rest: "60 sec", notes: "Bicep", muscles: ["biceps"], demo: "" },
+        { name: "Overhead Tricep Ext", sets: 3, reps: "12-15", rest: "60 sec", notes: "Tricep", muscles: ["triceps"], demo: "" }
+      ],
+      3: [
+        { name: "Zone 2 Cardio", sets: 1, reps: "20 min", rest: "-", notes: "Recovery", muscles: [], demo: "" },
+        { name: "Rack Pulls", sets: 4, reps: "6-8", rest: "3 min", notes: "Heavy BACK/TRAP", muscles: ["back", "traps", "erectors"], demo: "" },
+        { name: "Barbell Shrugs", sets: 3, reps: "8-10", rest: "2 min", notes: "Heavy", muscles: ["traps"], demo: "" },
+        { name: "Hammer Curls", sets: 3, reps: "8-10", rest: "90 sec", notes: "Brachialis", muscles: ["biceps", "forearms"], demo: "" },
+        { name: "Close-Grip Bench", sets: 3, reps: "8-10", rest: "2 min", notes: "Tricep mass", muscles: ["triceps", "chest"], demo: "" }
+      ],
+      4: [
+        { name: "Zone 2 Cardio", sets: 1, reps: "25 min", rest: "-", notes: "Extended", muscles: [], demo: "" },
+        { name: "VO2 Intervals", sets: 8, reps: "90s on/90s off", rest: "-", notes: "90%+ HR", muscles: [], demo: "" },
+        { name: "Barbell Shrugs", sets: 5, reps: "12-15", rest: "60 sec", notes: "Vol", muscles: ["traps"], demo: "" },
+        { name: "21s Curls", sets: 3, reps: "7+7+7", rest: "2 min", notes: "Pump", muscles: ["biceps"], demo: "" },
+        { name: "Tricep Dips", sets: 4, reps: "15-20", rest: "60 sec", notes: "Pump", muscles: ["triceps", "chest"], demo: "" }
+      ],
+      5: [
+        { name: "Zone 2 Cardio", sets: 1, reps: "20 min", rest: "-", notes: "Active recovery", muscles: [], demo: "" },
+        { name: "Barbell Shrugs", sets: 4, reps: "6-8", rest: "2.5 min", notes: "Heavy", muscles: ["traps"], demo: "" },
+        { name: "Barbell Curls", sets: 4, reps: "6-8", rest: "2 min", notes: "Heavy", muscles: ["biceps"], demo: "" },
+        { name: "Close-Grip Bench", sets: 4, reps: "6-8", rest: "2.5 min", notes: "Heavy", muscles: ["triceps", "chest"], demo: "" }
+      ],
+      6: [
+        { name: "Zone 2 Cardio", sets: 1, reps: "20 min", rest: "-", notes: "Heart health", muscles: [], demo: "" },
+        { name: "VO2 Intervals", sets: 6, reps: "2 min on/2 off", rest: "-", notes: "Peak", muscles: [], demo: "" },
+        { name: "Barbell Shrugs", sets: 4, reps: "10-12", rest: "90 sec", notes: "Peak", muscles: ["traps"], demo: "" },
+        { name: "Farmer's Walks", sets: 3, reps: "50m", rest: "90 sec", notes: "Peak", muscles: ["traps", "forearms", "core"], demo: "" },
+        { name: "Barbell Curls", sets: 3, reps: "10-12", rest: "90 sec", notes: "Finish", muscles: ["biceps"], demo: "" },
+        { name: "Tricep Pushdowns", sets: 3, reps: "12-15", rest: "60 sec", notes: "Finish", muscles: ["triceps"], demo: "" }
+      ]
+    }
+  };
+
+  const getExercises = () => {
+    const exs = exercises[day as keyof typeof exercises]?.[meso as keyof typeof exercises.push] || [];
+    return deload ? exs.map(e => ({ ...e, sets: Math.ceil((typeof e.sets === 'number' ? e.sets : 3) * 0.5), notes: `DELOAD: ${e.notes}` })) : exs;
+  };
+
+  const toggle = async (i: number) => {
+    const k = `${meso}-${week}-${day}-${i}`;
+    const newDone = { ...done, [k]: !done[k] };
+    setDone(newDone);
+    await saveData({ done: newDone });
+  };
+  const toggleW = async (i: number) => {
+    const k = `${meso}-${week}-${day}-w-${i}`;
+    const newDoneWarmup = { ...doneWarmup, [k]: !doneWarmup[k] };
+    setDoneWarmup(newDoneWarmup);
+    await saveData({ done_warmup: newDoneWarmup });
+  };
+  const toggleC = async (i: number) => {
+    const k = `${meso}-${week}-${day}-c-${i}`;
+    const newDoneCool = { ...doneCool, [k]: !doneCool[k] };
+    setDoneCool(newDoneCool);
+    await saveData({ done_cool: newDoneCool });
+  };
+  const updateWt = async (i: number, d: number) => {
+    const k = `${day}-${i}`;
+    const newWeights = { ...weights, [k]: Math.max(0, (weights[k] || 0) + d) };
+    setWeights(newWeights);
+    await saveData({ weights: newWeights });
+  };
+  const getWt = (i: number) => weights[`${day}-${i}`] || 0;
+  const pct = () => {
+    const e = getExercises();
+    const d = e.filter((_, i) => done[`${meso}-${week}-${day}-${i}`]).length;
+    return Math.round((d / e.length) * 100);
+  };
+
+  const days = {
+    push: { name: "Push", icon: "💪", color: "bg-red-500" },
+    pull: { name: "Pull", icon: "🔙", color: "bg-blue-500" },
+    legs: { name: "Legs", icon: "🦵", color: "bg-green-500" },
+    arms: { name: "Arms+", icon: "💎", color: "bg-purple-500" }
+  };
+  const tabs = [
+    { id: "warmup", icon: <Flame className="w-4 h-4" />, c: "text-orange-400" },
+    { id: "workout", icon: <Dumbbell className="w-4 h-4" />, c: "text-blue-400" },
+    { id: "cooldown", icon: <Wind className="w-4 h-4" />, c: "text-cyan-400" },
+    { id: "nutrition", icon: <Apple className="w-4 h-4" />, c: "text-green-400" },
+    { id: "supps", icon: <Pill className="w-4 h-4" />, c: "text-purple-400" }
   ];
-
-  const workouts = {
-    "Monday - Push Day": {
-      color: "bg-red-600",
-      exercises: {
-        foundation: [
-          { name: "Incline Barbell Press", sets: "4 x 8-10", rest: "3 min", notes: "Upper chest priority - 30-45° angle", demo: "incline-barbell-press" },
-          { name: "Overhead Press", sets: "4 x 8-10", rest: "2.5 min", notes: "Core tight, drive through legs", demo: "overhead-press" },
-          { name: "Incline Dumbbell Press", sets: "3 x 10-12", rest: "2.5 min", notes: "Deep stretch, slow negative", demo: "incline-db-press" },
-          { name: "Lateral Raises", sets: "4 x 12-15", rest: "90 sec", notes: "Control weight, slight lean forward", demo: "lateral-raises" },
-          { name: "Weighted Dips", sets: "3 x 10-12", rest: "2 min", notes: "Lean forward for chest emphasis", demo: "weighted-dips" },
-          { name: "Close-Grip Bench Press", sets: "3 x 10-12", rest: "2 min", notes: "Tricep mass builder", demo: "close-grip-bench" },
-          { name: "Overhead Tricep Extension", sets: "3 x 12-15", rest: "90 sec", notes: "ARM FOCUS: Full stretch at bottom", demo: "overhead-tricep-ext" },
-          { name: "Rear Delt Flyes", sets: "3 x 15-20", rest: "60 sec", notes: "Light weight, squeeze at top", demo: "rear-delt-flyes" }
-        ],
-        growth: [
-          { name: "Incline Barbell Press", sets: "5 x 6-8", rest: "3 min", notes: "Progressive overload focus", demo: "incline-barbell-press" },
-          { name: "Dumbbell Shoulder Press", sets: "4 x 8-10", rest: "2.5 min", notes: "Full ROM, control at top", demo: "db-shoulder-press" },
-          { name: "Decline Barbell Press", sets: "4 x 8-10", rest: "2.5 min", notes: "Lower chest development", demo: "decline-barbell-press" },
-          { name: "Arnold Press", sets: "3 x 10-12", rest: "2 min", notes: "Rotation for all deltoid heads", demo: "arnold-press" },
-          { name: "Superset: Lateral + Rear Raises", sets: "4 x 12+12", rest: "2 min", notes: "No rest between exercises", demo: "lateral-rear-superset" },
-          { name: "Weighted Dips", sets: "4 x 8-12", rest: "2.5 min", notes: "Add weight belt/chain", demo: "weighted-dips-heavy" },
-          { name: "Diamond Push-ups", sets: "3 x max", rest: "90 sec", notes: "ARM FOCUS: Tricep isolation, to failure", demo: "diamond-pushups" },
-          { name: "Cable Tricep Pushdowns", sets: "3 x 12-15", rest: "90 sec", notes: "ARM FOCUS: Rope attachment, full extension", demo: "cable-tricep-pushdowns" },
-          { name: "Cable Upright Rows", sets: "3 x 12-15", rest: "60 sec", notes: "Wide grip, pull to chest", demo: "cable-upright-rows" }
-        ],
-        intensity: [
-          { name: "Incline Barbell Press", sets: "6 x 4-6", rest: "4 min", notes: "Heavy singles, spotter needed", demo: "heavy-incline-press" },
-          { name: "Push Press", sets: "5 x 3-5", rest: "3 min", notes: "Explosive leg drive", demo: "push-press" },
-          { name: "Weighted Dip Clusters", sets: "4 x 3+3+3", rest: "15s between, 3min total", notes: "Heavy dips with mini-rests", demo: "dip-clusters" },
-          { name: "Handstand Push-ups", sets: "4 x 5-8", rest: "3 min", notes: "Wall-assisted, full ROM", demo: "handstand-pushups" },
-          { name: "Drop Set Lateral Raises", sets: "3 x 10+8+6", rest: "2.5 min", notes: "Heavy to light, no rest", demo: "drop-set-laterals" },
-          { name: "Close-Grip Press to Skulls", sets: "4 x 6+8", rest: "2.5 min", notes: "ARM FOCUS: Mechanical drop set", demo: "cgbp-to-skulls" },
-          { name: "21s Tricep Extensions", sets: "3 x 21", rest: "2 min", notes: "ARM FOCUS: 7 bottom + 7 top + 7 full", demo: "21s-tricep-ext" },
-          { name: "Giant Set: Shoulders", sets: "3 rounds", rest: "3 min", notes: "Press + Lateral + Rear + Upright", demo: "shoulder-giant-set" }
-        ]
-      }
-    },
-    "Wednesday - Pull Day + Arms": {
-      color: "bg-blue-600",
-      exercises: {
-        foundation: [
-          { name: "Wide-Grip Pull-ups", sets: "4 x 8-12", rest: "3 min", notes: "Full hang, chest to bar", demo: "wide-grip-pullups" },
-          { name: "Barbell Rows", sets: "4 x 8-10", rest: "2.5 min", notes: "Pull to lower chest", demo: "barbell-rows" },
-          { name: "Cable Rows (Wide Grip)", sets: "3 x 10-12", rest: "2.5 min", notes: "Upper back thickness", demo: "wide-cable-rows" },
-          { name: "Lat Pulldown", sets: "3 x 10-12", rest: "2 min", notes: "Pull to upper chest", demo: "lat-pulldown" },
-          { name: "Barbell Curls", sets: "4 x 10-12", rest: "2 min", notes: "ARM FOCUS: No swinging", demo: "barbell-curls" },
-          { name: "Hammer Curls", sets: "4 x 10-12", rest: "90 sec", notes: "ARM FOCUS: Slow negatives", demo: "hammer-curls" },
-          { name: "Cable Curls", sets: "3 x 12-15", rest: "90 sec", notes: "ARM FOCUS: Constant tension", demo: "cable-curls" },
-          { name: "Preacher Curls", sets: "3 x 12-15", rest: "90 sec", notes: "ARM FOCUS: Bicep isolation", demo: "preacher-curls" }
-        ],
-        growth: [
-          { name: "Weighted Pull-ups", sets: "5 x 6-8", rest: "3 min", notes: "Add weight when possible", demo: "weighted-pullups" },
-          { name: "T-Bar Rows", sets: "4 x 8-10", rest: "2.5 min", notes: "Chest supported, heavy", demo: "t-bar-rows" },
-          { name: "Cable Rows (V-Handle)", sets: "4 x 8-10", rest: "2.5 min", notes: "Squeeze shoulder blades", demo: "v-handle-rows" },
-          { name: "Reverse Flyes", sets: "3 x 12-15", rest: "90 sec", notes: "Rear delt focus", demo: "reverse-flyes" },
-          { name: "Barbell Curls", sets: "5 x 8-10", rest: "2 min", notes: "ARM FOCUS: Progressive overload", demo: "barbell-curls-heavy" },
-          { name: "Alternating Dumbbell Curls", sets: "4 x 10-12 each", rest: "2 min", notes: "ARM FOCUS: Peak contraction", demo: "alternating-db-curls" },
-          { name: "Cable Hammer Curls", sets: "4 x 10-12", rest: "90 sec", notes: "ARM FOCUS: Rope attachment", demo: "cable-hammer-curls" },
-          { name: "Concentration Curls", sets: "3 x 12-15 each", rest: "90 sec", notes: "ARM FOCUS: Isolation", demo: "concentration-curls" },
-          { name: "Face Pulls", sets: "3 x 15-20", rest: "60 sec", notes: "High reps, rear delts", demo: "face-pulls" }
-        ],
-        intensity: [
-          { name: "Weighted Pull-up Clusters", sets: "5 x 3+3+3", rest: "15s between, 3min total", notes: "Heavy weight, mini-rests", demo: "pullup-clusters" },
-          { name: "Chest-Supported Rows", sets: "5 x 5-7", rest: "3 min", notes: "Maximum weight possible", demo: "chest-supported-rows-heavy" },
-          { name: "Single-Arm Dumbbell Rows", sets: "4 x 6-8 each", rest: "2.5 min", notes: "Heavy unilateral work", demo: "single-arm-db-rows" },
-          { name: "Wide-Grip Cable Rows", sets: "4 x 8-10", rest: "2.5 min", notes: "Upper back width", demo: "wide-cable-rows-heavy" },
-          { name: "21s Barbell Curls", sets: "4 x 21", rest: "2.5 min", notes: "ARM FOCUS: 7+7+7 protocol", demo: "21s-barbell-curls" },
-          { name: "Drop Set Hammer Curls", sets: "3 x 8+6+4", rest: "2 min", notes: "ARM FOCUS: Heavy to light", demo: "drop-set-hammers" },
-          { name: "Cable Curl 21s", sets: "3 x 21", rest: "2 min", notes: "ARM FOCUS: Cable version", demo: "cable-curl-21s" },
-          { name: "Superset: Preacher + Hammer", sets: "3 x 10+10", rest: "2 min", notes: "ARM FOCUS: No rest between", demo: "preacher-hammer-superset" }
-        ]
-      }
-    },
-    "Friday - Legs + Cardio + Bonus Arms": {
-      color: "bg-green-600",
-      exercises: {
-        foundation: [
-          { name: "Back Squat", sets: "4 x 8-10", rest: "3 min", notes: "Full depth, drive through heels", demo: "back-squat" },
-          { name: "Romanian Deadlift", sets: "4 x 8-10", rest: "3 min", notes: "Hinge at hips, feel hamstrings", demo: "romanian-deadlift" },
-          { name: "Leg Press", sets: "3 x 12-15", rest: "2.5 min", notes: "Full range of motion", demo: "leg-press" },
-          { name: "Walking Lunges", sets: "3 x 12 each leg", rest: "2 min", notes: "Keep torso upright", demo: "walking-lunges" },
-          { name: "Leg Curls", sets: "3 x 12-15", rest: "90 sec", notes: "Slow negatives", demo: "leg-curls" },
-          { name: "Calf Raises", sets: "4 x 15-20", rest: "90 sec", notes: "Full stretch and squeeze", demo: "calf-raises" },
-          { name: "BONUS: Cable Curls", sets: "3 x 12-15", rest: "60 sec", notes: "ARM BONUS: End workout pump", demo: "cable-curls-bonus" },
-          { name: "BONUS: Tricep Pushdowns", sets: "3 x 12-15", rest: "60 sec", notes: "ARM BONUS: Tricep pump", demo: "tricep-pushdowns-bonus" }
-        ],
-        growth: [
-          { name: "Front Squats", sets: "4 x 8-10", rest: "3 min", notes: "Quad emphasis, upright torso", demo: "front-squats" },
-          { name: "Romanian Deadlift", sets: "5 x 6-8", rest: "3 min", notes: "Progressive overload", demo: "romanian-deadlift-heavy" },
-          { name: "Bulgarian Split Squats", sets: "3 x 10-12 each", rest: "2.5 min", notes: "Rear foot elevated", demo: "bulgarian-split-squats" },
-          { name: "Hip Thrusts", sets: "4 x 12-15", rest: "2 min", notes: "Squeeze glutes hard", demo: "hip-thrusts" },
-          { name: "Stiff-Leg Deadlifts", sets: "3 x 12-15", rest: "2 min", notes: "Hamstring isolation", demo: "stiff-leg-deadlifts" },
-          { name: "Single-Leg Calf Raises", sets: "4 x 12-15 each", rest: "90 sec", notes: "Unilateral strength", demo: "single-leg-calves" },
-          { name: "Zone 2 Cardio", sets: "15-20 min", rest: "N/A", notes: "Moderate intensity", demo: "zone2-cardio" },
-          { name: "BONUS: 21s Curls", sets: "3 x 21", rest: "90 sec", notes: "ARM BONUS: Growth technique", demo: "21s-curls-bonus" },
-          { name: "BONUS: Diamond Push-ups", sets: "3 x max", rest: "90 sec", notes: "ARM BONUS: Tricep burnout", demo: "diamond-pushups-bonus" }
-        ],
-        intensity: [
-          { name: "Back Squat", sets: "6 x 4-6", rest: "4 min", notes: "Heavy singles, safety bars", demo: "heavy-back-squats" },
-          { name: "Deficit Deadlifts", sets: "5 x 3-5", rest: "3.5 min", notes: "Stand on platform", demo: "deficit-deadlifts" },
-          { name: "Pause Squats", sets: "4 x 6-8", rest: "3 min", notes: "3-second pause at bottom", demo: "pause-squats" },
-          { name: "Single-Leg Press", sets: "4 x 8-10 each", rest: "2.5 min", notes: "Unilateral leg strength", demo: "single-leg-press" },
-          { name: "Jump Squats", sets: "4 x 6", rest: "2 min", notes: "Explosive power", demo: "jump-squats" },
-          { name: "1.5 Rep Calf Raises", sets: "4 x 12", rest: "2 min", notes: "Bottom half + full rep", demo: "1-5-rep-calves" },
-          { name: "HIIT Cardio", sets: "12 min", rest: "N/A", notes: "30s on / 30s off intervals", demo: "hiit-cardio" },
-          { name: "BONUS: Drop Set Curls", sets: "3 x 10+8+6", rest: "2 min", notes: "ARM BONUS: Maximum pump", demo: "drop-set-curls-bonus" },
-          { name: "BONUS: Close-Grip Push-ups", sets: "3 x max", rest: "90 sec", notes: "ARM BONUS: Tricep finisher", demo: "close-grip-pushups-bonus" }
-        ]
-      }
-    }
-  };
-
-  const updateWeight = async (day: string, exerciseIndex: number, change: number) => {
-    const key = `${day}-${exerciseIndex}-week${currentWeek}`;
-    const currentValue = exerciseWeights[key] || getLastUsedWeight(day, exerciseIndex, currentWeek);
-    const newWeight = Math.max(0, currentValue + change);
-
-    // Update state
-    setExerciseWeights(prev => ({
-      ...prev,
-      [key]: newWeight
-    }));
-
-    // Save to Supabase immediately with the new value
-    try {
-      await DatabaseService.savePreferences({
-        current_week: currentWeek,
-        completed_exercises: completedExercises,
-        exercise_weights: {
-          ...exerciseWeights,
-          [key]: newWeight
-        },
-        nutrition_goals: nutritionGoals
-      });
-    } catch (error) {
-      console.error('Failed to save exercise weight:', error);
-    }
-  };
-
-  const toggleExercise = async (day: string, exerciseIndex: number) => {
-    const key = `${day}-${exerciseIndex}-week${currentWeek}`;
-    const newValue = !completedExercises[key];
-
-    // Update state
-    setCompletedExercises(prev => ({
-      ...prev,
-      [key]: newValue
-    }));
-
-    // Save to Supabase immediately with the new value
-    try {
-      await DatabaseService.savePreferences({
-        current_week: currentWeek,
-        completed_exercises: {
-          ...completedExercises,
-          [key]: newValue
-        },
-        exercise_weights: exerciseWeights,
-        nutrition_goals: nutritionGoals
-      });
-    } catch (error) {
-      console.error('Failed to save exercise completion:', error);
-    }
-  };
-
-  const toggleNutritionGoal = async (day: string, goalIndex: number) => {
-    const key = `${day}-nutrition-${goalIndex}-week${currentWeek}`;
-    const newValue = !nutritionGoals[key];
-
-    // Update state
-    setNutritionGoals(prev => ({
-      ...prev,
-      [key]: newValue
-    }));
-
-    // Save to Supabase immediately with the new value
-    try {
-      await DatabaseService.savePreferences({
-        current_week: currentWeek,
-        completed_exercises: completedExercises,
-        exercise_weights: exerciseWeights,
-        nutrition_goals: {
-          ...nutritionGoals,
-          [key]: newValue
-        }
-      });
-    } catch (error) {
-      console.error('Failed to save nutrition goal:', error);
-    }
-  };
-
-  // Get the most recent weight used for this exercise across all previous weeks
-  const getLastUsedWeight = (dayName: string, exerciseIndex: number, currentWeek: number) => {
-    // Check current week first
-    const currentKey = `${dayName}-${exerciseIndex}-week${currentWeek}`;
-    if (exerciseWeights[currentKey] && exerciseWeights[currentKey] > 0) {
-      return exerciseWeights[currentKey];
-    }
-
-    // Look through completed sessions for the same exercise
-    for (const session of completedSessions) {
-      if (session.day_name === dayName && session.exercises && session.exercises[exerciseIndex]) {
-        const exercise = session.exercises[exerciseIndex];
-        if (exercise.weight && exercise.weight > 0) {
-          return exercise.weight;
-        }
-      }
-    }
-
-    // Look through previous weeks in exerciseWeights
-    for (let week = currentWeek - 1; week >= 1; week--) {
-      const key = `${dayName}-${exerciseIndex}-week${week}`;
-      if (exerciseWeights[key] && exerciseWeights[key] > 0) {
-        return exerciseWeights[key];
-      }
-    }
-
-    return 0; // Default if no previous weight found
-  };
-
-  const resetWeek = async () => {
-    const newCompletedExercises = { ...completedExercises };
-    const newNutritionGoals = { ...nutritionGoals };
-    Object.keys(newCompletedExercises).forEach(key => {
-      if (key.includes(`week${currentWeek}`)) {
-        delete newCompletedExercises[key];
-      }
-    });
-    Object.keys(newNutritionGoals).forEach(key => {
-      if (key.includes(`week${currentWeek}`)) {
-        delete newNutritionGoals[key];
-      }
-    });
-    setCompletedExercises(newCompletedExercises);
-    setNutritionGoals(newNutritionGoals);
-  };
-
-  const saveSession = async (dayName: string) => {
-    setSaving(true);
-    try {
-      const currentPhase = getPhase(currentWeek);
-      const exercises = (workouts as any)[dayName].exercises[currentPhase];
-
-      // Get completed exercises for this day
-      const dayExercises = exercises.map((exercise: any, index: number) => ({
-        name: exercise.name,
-        sets: exercise.sets,
-        weight: exerciseWeights[`${dayName}-${index}-week${currentWeek}`] || 0,
-        completed: completedExercises[`${dayName}-${index}-week${currentWeek}`] || false
-      }));
-
-      // Get completed nutrition goals for this day
-      const dayNutrition = dailyNutritionGoals.map((goal, index) => ({
-        name: goal.name,
-        icon: goal.icon,
-        category: goal.category,
-        completed: nutritionGoals[`${dayName}-nutrition-${index}-week${currentWeek}`] || false
-      }));
-
-      const sessionData = {
-        session_date: new Date().toISOString().split('T')[0],
-        session_time: new Date().toTimeString().split(' ')[0],
-        week: currentWeek,
-        phase: currentPhase,
-        day_name: dayName,
-        exercises: dayExercises,
-        nutrition: dayNutrition,
-        exercises_completed: dayExercises.filter((e: any) => e.completed).length,
-        total_exercises: dayExercises.length,
-        nutrition_completed: dayNutrition.filter(n => n.completed).length,
-        total_nutrition: dayNutrition.length
-      };
-
-      await DatabaseService.saveSession(sessionData);
-
-      // Refresh sessions list
-      const sessions = await DatabaseService.getSessions();
-      setCompletedSessions(sessions);
-
-      alert(`✅ Session saved to cloud!\n${dayName}\nExercises: ${sessionData.exercises_completed}/${sessionData.total_exercises}\nNutrition: ${sessionData.nutrition_completed}/${sessionData.total_nutrition}`);
-    } catch (error) {
-      console.error('Error saving session:', error);
-      alert('❌ Failed to save session. Please try again.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const getDemoUrl = () => {
-    return {
-      video: "https://www.youtube.com/results?search_query=",
-      guide: "https://www.google.com/search?q="
-    };
-  };
-
-  const currentPhase = getPhase(currentWeek) as keyof typeof phaseConfig;
-  const phaseInfo = phaseConfig[currentPhase];
-
-  const getCompletionStats = () => {
-    const currentWorkouts = Object.values(workouts).map(workout => workout.exercises[currentPhase]);
-    const totalExercises = currentWorkouts.reduce((sum, exercises) => sum + exercises.length, 0);
-    const completedCount = Object.keys(completedExercises).filter(key =>
-      key.includes(`week${currentWeek}`) && completedExercises[key]
-    ).length;
-    return { completed: completedCount, total: totalExercises };
-  };
-
-  const stats = getCompletionStats();
-  const completionPercentage = Math.round((stats.completed / stats.total) * 100);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your training data...</p>
+          <p className="text-gray-300">Loading your training data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile-Optimized Header */}
-      <div className="bg-white shadow-sm sticky top-0 z-10 border-b">
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Trophy className="text-yellow-500 w-5 h-5" />
-              <h1 className="text-lg font-bold text-gray-800">3x/Week Aesthetic</h1>
-            </div>
-            <div className="text-right">
-              <div className="text-xs text-gray-600">Progress</div>
-              <div className="text-xl font-bold text-blue-600">{completionPercentage}%</div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-900 text-white p-3 max-w-lg mx-auto">
+      <ExerciseModal ex={selEx} onClose={() => setSelEx(null)} />
 
-          {/* Compact Phase Info */}
-          <div className={`${phaseInfo.color} text-white p-3 rounded-lg mb-3`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-sm">{phaseInfo.name}</h3>
-                <p className="text-xs opacity-90">{phaseInfo.description}</p>
-              </div>
-              <div className="text-right">
-                <div className="text-xs opacity-75">Weeks {currentPhase === 'foundation' ? '1-4' : currentPhase === 'growth' ? '5-8' : '9-12'}</div>
-              </div>
-            </div>
-          </div>
+      <div className="mb-4 text-center">
+        <h1 className="text-xl font-bold">🏋️ LUKAS 2026 GYM COMPANION</h1>
+        <p className="text-gray-400 text-xs">FFMI 17.5 → 20 | Evidence-Based Protocol</p>
+      </div>
 
-          {/* Mobile Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Calendar className="text-gray-600 w-4 h-4" />
-                <span className="text-sm font-semibold">Week {currentWeek}</span>
-              </div>
-              <select
-                value={currentWeek}
-                onChange={(e) => setCurrentWeek(Number(e.target.value))}
-                className="px-2 py-1 border rounded-lg text-sm min-w-[80px]"
-              >
-                {[1,2,3,4,5,6,7,8,9,10,11,12].map(week => (
-                  <option key={week} value={week}>Week {week}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowHistory(true)}
-                className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-              >
-                <History className="w-3 h-3" />
-                History
-              </button>
-              <button
-                onClick={resetWeek}
-                className="flex items-center gap-1 px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-              >
-                <RotateCcw className="w-3 h-3" />
-                Reset
-              </button>
-            </div>
-          </div>
-
-
-          {/* Progress Bar */}
-          <div className="mt-3 bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${completionPercentage}%` }}
-            ></div>
-          </div>
+      <div className="bg-gray-800 rounded-xl p-3 mb-3">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium">M{meso} {mesos[meso as keyof typeof mesos]} • Week {week}{deload ? " 🔄" : ""}</span>
+          <span className="text-sm text-green-400">{pct()}%</span>
+        </div>
+        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-full bg-green-500 transition-all" style={{ width: `${pct()}%` }}></div>
         </div>
       </div>
 
-      {/* Mobile-Optimized Workout Days */}
-      <div className="px-4 pb-4 space-y-4">
-        {Object.entries(workouts).map(([dayName, workout]) => {
-          const exercises = workout.exercises[currentPhase];
-          const dayCompleted = exercises.every((_, index) =>
-            completedExercises[`${dayName}-${index}-week${currentWeek}`]
-          );
-          const dayProgress = exercises.filter((_, index) =>
-            completedExercises[`${dayName}-${index}-week${currentWeek}`]
-          ).length;
-
-          return (
-            <div key={dayName} className="bg-white rounded-xl shadow-sm overflow-hidden border">
-              {/* Day Header */}
-              <div className={`${workout.color} text-white p-3`}>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-bold leading-tight">
-                    {dayName.split(' - ')[0]}<br/>
-                    <span className="text-xs opacity-90">{dayName.split(' - ')[1]}</span>
-                  </h2>
-                  <div className="flex items-center gap-2">
-                    <div className="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full">
-                      {dayProgress}/{exercises.length}
-                    </div>
-                    {dayCompleted && (
-                      <CheckCircle2 className="w-5 h-5 text-green-300" />
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Exercises */}
-              <div className="divide-y divide-gray-100">
-                {exercises.map((exercise, index) => {
-                  const isCompleted = completedExercises[`${dayName}-${index}-week${currentWeek}`];
-                  const currentWeight = exerciseWeights[`${dayName}-${index}-week${currentWeek}`] || getLastUsedWeight(dayName, index, currentWeek);
-                  const demos = getDemoUrl();
-                  const isArmFocus = exercise.notes.includes('ARM FOCUS') || exercise.notes.includes('ARM BONUS');
-
-                  return (
-                    <div
-                      key={index}
-                      className={`p-3 transition-all ${
-                        isCompleted ? 'bg-green-50' : 'hover:bg-gray-50'
-                      } ${isArmFocus ? 'border-l-4 border-l-orange-400' : ''}`}
-                    >
-                      {/* Exercise Header */}
-                      <div className="flex items-start gap-3 mb-3">
-                        <button
-                          onClick={() => toggleExercise(dayName, index)}
-                          className="mt-1 flex-shrink-0 touch-manipulation"
-                        >
-                          {isCompleted ? (
-                            <CheckCircle2 className="w-6 h-6 text-green-600" />
-                          ) : (
-                            <Circle className="w-6 h-6 text-gray-400" />
-                          )}
-                        </button>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-1">
-                            <h3 className={`font-semibold text-sm leading-tight ${isCompleted ? 'text-green-800' : 'text-gray-800'}`}>
-                              {exercise.name}
-                              {isArmFocus && <span className="ml-1 text-xs bg-orange-100 text-orange-800 px-1 rounded">ARM</span>}
-                            </h3>
-                            <div className="flex items-center gap-1 text-xs ml-2">
-                              <span className="font-mono bg-gray-100 px-2 py-1 rounded whitespace-nowrap">
-                                {exercise.sets}
-                              </span>
-                            </div>
-                          </div>
-
-                          {exercise.rest !== "N/A" && (
-                            <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
-                              <Clock className="w-3 h-3" />
-                              <span>Rest: {exercise.rest}</span>
-                            </div>
-                          )}
-
-                          <p className="text-xs text-gray-600 mb-3 leading-relaxed">{exercise.notes}</p>
-                        </div>
-                      </div>
-
-                      {/* Weight Tracking & Controls */}
-                      <div className="flex items-center justify-between">
-                        {/* Weight Tracking */}
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-gray-700">Weight:</span>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => updateWeight(dayName, index, -2.5)}
-                              className="w-8 h-8 bg-red-500 text-white rounded-lg flex items-center justify-center hover:bg-red-600 transition-colors touch-manipulation active:scale-95"
-                            >
-                              <Minus className="w-4 h-4" />
-                            </button>
-                            <span className="w-14 text-center font-mono text-sm bg-gray-100 py-2 px-1 rounded-lg">
-                              {currentWeight}kg
-                            </span>
-                            <button
-                              onClick={() => updateWeight(dayName, index, 2.5)}
-                              className="w-8 h-8 bg-green-500 text-white rounded-lg flex items-center justify-center hover:bg-green-600 transition-colors touch-manipulation active:scale-95"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Demo Links */}
-                        <div className="flex gap-1">
-                          <a
-                            href={demos.video + exercise.name.replace(/\s+/g, '+')}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-colors touch-manipulation active:scale-95"
-                          >
-                            <Play className="w-3 h-3" />
-                            Video
-                          </a>
-                          <a
-                            href={demos.guide + exercise.name.replace(/\s+/g, '+')}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 px-2 py-1 bg-blue-500 text-white text-xs rounded-lg hover:bg-blue-600 transition-colors touch-manipulation active:scale-95"
-                          >
-                            <FileText className="w-3 h-3" />
-                            Guide
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Nutrition Tracking Section */}
-              <div className="bg-gray-50 border-t border-gray-100 p-3">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm font-bold text-gray-800">🍎 Daily Nutrition Goals</span>
-                  <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                    {dailyNutritionGoals.filter((_, index) =>
-                      nutritionGoals[`${dayName}-nutrition-${index}-week${currentWeek}`]
-                    ).length}/{dailyNutritionGoals.length}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  {dailyNutritionGoals.map((goal, index) => {
-                    const isCompleted = nutritionGoals[`${dayName}-nutrition-${index}-week${currentWeek}`];
-                    const categoryColors = {
-                      protein: 'border-l-red-400',
-                      hydration: 'border-l-blue-400',
-                      micronutrients: 'border-l-green-400',
-                      fats: 'border-l-yellow-400',
-                      carbs: 'border-l-orange-400',
-                      supplements: 'border-l-purple-400'
-                    };
-
-                    return (
-                      <div
-                        key={index}
-                        className={`flex items-center gap-2 p-2 bg-white rounded-lg border-l-4 ${(categoryColors as any)[goal.category]} ${
-                          isCompleted ? 'bg-green-50' : ''
-                        } transition-all`}
-                      >
-                        <button
-                          onClick={() => toggleNutritionGoal(dayName, index)}
-                          className="flex-shrink-0"
-                        >
-                          {isCompleted ? (
-                            <CheckCircle2 className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <Circle className="w-4 h-4 text-gray-400" />
-                          )}
-                        </button>
-                        <span className="text-lg">{goal.icon}</span>
-                        <span className={`text-xs font-medium leading-tight ${isCompleted ? 'text-green-800' : 'text-gray-700'}`}>
-                          {goal.name}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Nutrition Summary */}
-                <div className="mt-3 p-2 bg-blue-50 rounded-lg">
-                  <div className="text-xs text-blue-800">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div><strong>Target Protein:</strong> 156g/day</div>
-                      <div><strong>Meal Timing:</strong> Every 4-5h</div>
-                      <div><strong>Pre-workout:</strong> Light carbs</div>
-                      <div><strong>Post-workout:</strong> Protein + carbs</div>
-                      <div><strong>Supplements:</strong> Daily stack</div>
-                      <div><strong>Best Time:</strong> With meals</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Save Session Button */}
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <button
-                    onClick={() => saveSession(dayName)}
-                    disabled={saving}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Save className="w-4 h-4" />
-                    {saving ? 'Saving...' : 'Save Session to Cloud'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <div className="flex gap-2 mb-3">
+        <select value={meso} onChange={(e) => {setMeso(Number(e.target.value)); saveData({ meso: Number(e.target.value) });}} className="flex-1 bg-gray-700 rounded px-2 py-1.5 text-xs">
+          {Object.entries(mesos).map(([n, name]) => <option key={n} value={n}>M{n}: {name}</option>)}
+        </select>
+        <select value={week} onChange={(e) => {setWeek(Number(e.target.value)); saveData({ week: Number(e.target.value) });}} className="w-24 bg-gray-700 rounded px-2 py-1.5 text-xs">
+          {[1,2,3,4,5,6,7,8].map(w => <option key={w} value={w}>Wk {w}{w === 8 ? " 🔄" : ""}</option>)}
+        </select>
       </div>
 
-      {/* Goals & Stats remain the same... */}
-      <div className="px-4 pb-6 space-y-4">
-        {/* Quick Stats Cards */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-white rounded-lg p-3 text-center shadow-sm border">
-            <div className="text-lg font-bold text-blue-600">{currentWeek}</div>
-            <div className="text-xs text-gray-600">Week</div>
-          </div>
-          <div className="bg-white rounded-lg p-3 text-center shadow-sm border">
-            <div className="text-lg font-bold text-green-600">{stats.completed}</div>
-            <div className="text-xs text-gray-600">Done</div>
-          </div>
-          <div className="bg-white rounded-lg p-3 text-center shadow-sm border">
-            <div className="text-lg font-bold text-purple-600">3x</div>
-            <div className="text-xs text-gray-600">Per Week</div>
-          </div>
-        </div>
-
-        {/* 3x/Week Specific Goals */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <h3 className="font-bold text-blue-800 text-sm mb-2">3x/Week Realistic Targets</h3>
-          <div className="text-xs text-blue-700 space-y-1">
-            <div className="flex justify-between">
-              <span>Arms (Week 0: 34.5cm):</span>
-              <span className="font-mono">Week 12: 36.5cm (+2cm)</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Chest (Week 0: 100.5cm):</span>
-              <span className="font-mono">Week 12: 105cm (+4.5cm)</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Weight (Week 0: 77.4kg):</span>
-              <span className="font-mono">Week 12: 82-83kg (+5kg)</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Daily Protein:</span>
-              <span className="font-mono">156g (39g x 4 meals)</span>
-            </div>
-            {currentPhase === 'foundation' && <div className="text-xs mt-2 italic bg-blue-100 p-2 rounded">🎯 Focus: Perfect form + arm specialization</div>}
-            {currentPhase === 'growth' && <div className="text-xs mt-2 italic bg-green-100 p-2 rounded">🎯 Focus: Volume + progressive overload + arm focus</div>}
-            {currentPhase === 'intensity' && <div className="text-xs mt-2 italic bg-red-100 p-2 rounded">🎯 Focus: Heavy lifting + advanced arm techniques</div>}
-          </div>
-        </div>
-
-        {/* 3x/Week Schedule Reminder */}
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-          <h3 className="font-bold text-orange-800 text-sm mb-2">Weekly Schedule</h3>
-          <div className="text-xs text-orange-700 space-y-1">
-            <div className="flex justify-between">
-              <span className="font-semibold">Monday:</span>
-              <span>Push Day (90 min)</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Wednesday:</span>
-              <span>Pull + Arms (90 min)</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Friday:</span>
-              <span>Legs + Cardio + Arms (75 min)</span>
-            </div>
-            <div className="text-xs mt-2 italic">🔥 Extra arm volume on every session for maximum growth</div>
-          </div>
-        </div>
-
-        {/* Success Tips */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-          <h3 className="font-bold text-green-800 text-sm mb-2">3x/Week Success Keys</h3>
-          <div className="text-xs text-green-700 space-y-1">
-            <div>✅ <strong>Perfect Recovery:</strong> 48h between sessions</div>
-            <div>✅ <strong>Nutrition Critical:</strong> Hit protein targets daily</div>
-            <div>✅ <strong>Progressive Overload:</strong> Track all weights</div>
-            <div>✅ <strong>Arm Priority:</strong> Orange-marked exercises = growth</div>
-            <div>✅ <strong>Sleep 7-9h:</strong> Recovery is everything</div>
-            <div>✅ <strong>Whoop Guidance:</strong> Red days = rest or light</div>
-          </div>
-        </div>
+      <div className="grid grid-cols-4 gap-1.5 mb-3">
+        {Object.entries(days).map(([k, d]) => (
+          <button key={k} onClick={() => {setDay(k); saveData({ day: k });}} className={`p-2 rounded-lg text-center transition-all ${day === k ? `${d.color} ring-2 ring-white` : 'bg-gray-700'}`}>
+            <div className="text-lg">{d.icon}</div>
+            <div className="text-xs">{d.name}</div>
+          </button>
+        ))}
       </div>
 
-      {/* History Modal */}
-      {showHistory && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            {/* History Header */}
-            <div className="bg-blue-600 text-white p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <History className="w-5 h-5" />
-                <h2 className="text-lg font-bold">Session History</h2>
-                <span className="text-sm bg-blue-500 px-2 py-1 rounded-full">
-                  {completedSessions.length} sessions
-                </span>
-              </div>
-              <button
-                onClick={() => setShowHistory(false)}
-                className="p-1 hover:bg-blue-700 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      <div className="flex bg-gray-800 rounded-lg p-1 mb-3">
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setView(t.id)} className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-md text-xs transition-all ${view === t.id ? 'bg-gray-700 ' + t.c : 'text-gray-400'}`}>
+            {t.icon}
+          </button>
+        ))}
+      </div>
 
-            {/* History Content */}
-            <div className="overflow-y-auto max-h-[75vh] p-4">
-              {completedSessions.length === 0 ? (
-                <div className="text-center py-12">
-                  <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No completed sessions yet.</p>
-                  <p className="text-sm text-gray-500 mt-1">Complete a workout and save it to see your history!</p>
+      {view === "warmup" && (
+        <div className="bg-gray-800 rounded-xl p-4">
+          <h2 className="font-bold flex items-center gap-2 mb-2"><Flame className="w-5 h-5 text-orange-400" />{warmups[day as keyof typeof warmups].name}</h2>
+          <div className="bg-orange-900/20 border border-orange-700/30 rounded-lg p-2 mb-3 text-xs text-gray-300">📊 {warmups[day as keyof typeof warmups].science}</div>
+          <div className="space-y-2">
+            {warmups[day as keyof typeof warmups].items.map((ex, i) => {
+              const k = `${meso}-${week}-${day}-w-${i}`;
+              const d = doneWarmup[k];
+              return (
+                <div key={i} className={`bg-gray-700 rounded-lg p-2 flex items-center gap-2 ${d ? 'opacity-60 border-l-4 border-green-500' : ''}`}>
+                  <button onClick={() => toggleW(i)}>{d ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Circle className="w-5 h-5 text-gray-500" />}</button>
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">{ex.name}</div>
+                    <div className="text-xs text-gray-400">{ex.val} • {ex.notes}</div>
+                  </div>
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${ex.type === 'dynamic' ? 'bg-orange-600/30 text-orange-300' : ex.type === 'activation' ? 'bg-green-600/30 text-green-300' : ex.type === 'SMR' ? 'bg-purple-600/30 text-purple-300' : 'bg-blue-600/30 text-blue-300'}`}>{ex.type}</span>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {completedSessions.map((session) => (
-                    <div key={session.id} className="bg-gray-50 rounded-lg p-4 border">
-                      {/* Session Header */}
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h3 className="font-bold text-gray-800">{session.day_name}</h3>
-                          <p className="text-sm text-gray-600">
-                            {session.session_date} at {session.session_time} • Week {session.week} ({session.phase} phase)
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-medium text-blue-600">
-                            Exercises: {session.exercises_completed}/{session.total_exercises}
-                          </div>
-                          <div className="text-sm font-medium text-green-600">
-                            Nutrition: {session.nutrition_completed}/{session.total_nutrition}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Session Details */}
-                      <div className="grid md:grid-cols-2 gap-4">
-                        {/* Exercises */}
-                        <div>
-                          <h4 className="font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                            💪 Exercises ({session.exercises_completed}/{session.total_exercises})
-                          </h4>
-                          <div className="space-y-1 max-h-32 overflow-y-auto">
-                            {session.exercises.map((exercise: any, index: number) => (
-                              <div key={index} className={`text-xs p-2 rounded ${exercise.completed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                                <div className="flex items-center gap-2">
-                                  {exercise.completed ? (
-                                    <CheckCircle2 className="w-3 h-3 flex-shrink-0" />
-                                  ) : (
-                                    <Circle className="w-3 h-3 flex-shrink-0" />
-                                  )}
-                                  <span className="font-medium">{exercise.name}</span>
-                                  {exercise.weight > 0 && (
-                                    <span className="ml-auto font-mono">{exercise.weight}kg</span>
-                                  )}
-                                </div>
-                                <div className="text-xs opacity-75 ml-5">{exercise.sets}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Nutrition */}
-                        <div>
-                          <h4 className="font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                            🍎 Nutrition ({session.nutrition_completed}/{session.total_nutrition})
-                          </h4>
-                          <div className="space-y-1 max-h-32 overflow-y-auto">
-                            {session.nutrition.map((nutrition: any, index: number) => (
-                              <div key={index} className={`text-xs p-2 rounded ${nutrition.completed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                                <div className="flex items-center gap-2">
-                                  {nutrition.completed ? (
-                                    <CheckCircle2 className="w-3 h-3 flex-shrink-0" />
-                                  ) : (
-                                    <Circle className="w-3 h-3 flex-shrink-0" />
-                                  )}
-                                  <span className="text-sm">{nutrition.icon}</span>
-                                  <span className="font-medium">{nutrition.name}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* History Footer */}
-            <div className="bg-gray-50 p-4 border-t">
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-600">
-                  Total sessions: {completedSessions.length}
-                </div>
-                <button
-                  onClick={() => setShowHistory(false)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                >
-                  Close History
-                </button>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       )}
+
+      {view === "workout" && (
+        <div className="bg-gray-800 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-bold flex items-center gap-2"><Dumbbell className="w-5 h-5 text-blue-400" />{days[day as keyof typeof days].name} Day</h2>
+            <button onClick={() => {
+              const keys = Object.keys(done).filter(k => k.startsWith(`${meso}-${week}-${day}`));
+              const n = { ...done };
+              keys.forEach(k => delete n[k]);
+              setDone(n);
+              saveData({ done: n });
+            }} className="text-xs bg-gray-700 px-2 py-1 rounded flex items-center gap-1"><RotateCcw className="w-3 h-3" /></button>
+          </div>
+          {deload && <div className="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-2 mb-3 text-xs text-yellow-300">🔄 DELOAD: 50% volume, 40-50% weight</div>}
+          <div className="space-y-2">
+            {getExercises().map((ex, i) => {
+              const k = `${meso}-${week}-${day}-${i}`;
+              const d = done[k];
+              const w = getWt(i);
+              const cardio = ex.muscles.length === 0;
+              return (
+                <div key={i} className={`bg-gray-700 rounded-lg p-3 ${d ? 'opacity-60 border-l-4 border-green-500' : ''}`}>
+                  <div className="flex items-start gap-2">
+                    <button onClick={() => toggle(i)} className="mt-1">{d ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Circle className="w-5 h-5 text-gray-500" />}</button>
+                    {!cardio && ex.muscles.length > 0 && <button onClick={() => setSelEx(ex)} className="shrink-0 bg-gray-600 rounded p-1"><MuscleMap muscles={ex.muscles} size="small" /></button>}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-medium ${d ? 'line-through' : ''} cursor-pointer`} onClick={() => setSelEx(ex)}>{ex.name}</span>
+                        {ex.demo && <a href={ex.demo} target="_blank" rel="noopener noreferrer" className="text-blue-400"><Play className="w-4 h-4" /></a>}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-sm text-gray-400">
+                        <span className="font-mono">{ex.sets}×{ex.reps}</span>
+                        {ex.rest !== '-' && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{ex.rest}</span>}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">{ex.notes}</div>
+                      {!cardio && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <button onClick={() => updateWt(i, -2.5)} className="bg-gray-600 rounded p-1"><Minus className="w-3 h-3" /></button>
+                          <span className="text-sm font-mono w-16 text-center">{w > 0 ? `${w}kg` : '--'}</span>
+                          <button onClick={() => updateWt(i, 2.5)} className="bg-gray-600 rounded p-1"><Plus className="w-3 h-3" /></button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {view === "cooldown" && (
+        <div className="bg-gray-800 rounded-xl p-4">
+          <h2 className="font-bold flex items-center gap-2 mb-2"><Wind className="w-5 h-5 text-cyan-400" />{cooldowns[day as keyof typeof cooldowns].name}</h2>
+          <div className="bg-cyan-900/20 border border-cyan-700/30 rounded-lg p-2 mb-3 text-xs text-gray-300">📊 {cooldowns[day as keyof typeof cooldowns].science}</div>
+          <div className="space-y-2">
+            {cooldowns[day as keyof typeof cooldowns].items.map((ex, i) => {
+              const k = `${meso}-${week}-${day}-c-${i}`;
+              const d = doneCool[k];
+              return (
+                <div key={i} className={`bg-gray-700 rounded-lg p-2 flex items-center gap-2 ${d ? 'opacity-60 border-l-4 border-green-500' : ''}`}>
+                  <button onClick={() => toggleC(i)}>{d ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Circle className="w-5 h-5 text-gray-500" />}</button>
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">{ex.name}</div>
+                    <div className="text-xs text-gray-400">{ex.val} • {ex.notes}</div>
+                  </div>
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${ex.type === 'static' ? 'bg-cyan-600/30 text-cyan-300' : ex.type === 'pelvic' ? 'bg-pink-600/30 text-pink-300' : 'bg-green-600/30 text-green-300'}`}>{ex.type}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-3 p-2 bg-red-900/20 border border-red-700/30 rounded-lg text-xs text-red-300">⚠️ AVOID cold water immersion within 4hrs - blunts hypertrophy ~40%</div>
+        </div>
+      )}
+
+      {view === "nutrition" && (
+        <div className="bg-gray-800 rounded-xl p-4">
+          <h2 className="font-bold flex items-center gap-2 mb-3"><Apple className="w-5 h-5 text-green-400" />Daily Nutrition</h2>
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="bg-gray-700 rounded-lg p-2"><div className="text-xs text-gray-400">Calories</div><div className="font-bold text-green-400">{nutrition.targets.cal}</div></div>
+            <div className="bg-gray-700 rounded-lg p-2"><div className="text-xs text-gray-400">Protein</div><div className="font-bold text-blue-400">{nutrition.targets.protein}</div></div>
+            <div className="bg-gray-700 rounded-lg p-2"><div className="text-xs text-gray-400">Carbs</div><div className="font-bold text-yellow-400">{nutrition.targets.carbs}</div></div>
+            <div className="bg-gray-700 rounded-lg p-2"><div className="text-xs text-gray-400">Fats</div><div className="font-bold text-orange-400">{nutrition.targets.fats}</div></div>
+          </div>
+          <div className="bg-green-900/30 rounded-lg p-3 mb-3">
+            <div className="flex items-center justify-between"><span className="font-medium flex items-center gap-2"><Clock className="w-4 h-4" />Eating Window</span><span className="text-sm bg-green-600/30 text-green-300 px-2 py-1 rounded">12PM - 8PM</span></div>
+            <div className="text-xs text-gray-400 mt-1">Accommodates 5-7pm training with post-workout nutrition</div>
+          </div>
+          <div className="space-y-2">
+            {nutrition.meals.map((m, i) => (
+              <div key={i} className="bg-gray-700 rounded-lg p-2 flex justify-between items-center">
+                <div><div className="font-medium text-sm">{m.name}</div><div className="text-xs text-gray-400">{m.note}</div></div>
+                <div className="text-right"><div className="text-sm text-blue-400">{m.time}</div><div className="text-xs text-gray-500">{m.p}</div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {view === "supps" && (
+        <div className="bg-gray-800 rounded-xl p-4">
+          <h2 className="font-bold flex items-center gap-2 mb-3"><Pill className="w-5 h-5 text-purple-400" />Supplements</h2>
+          {[
+            { t: "Morning", icon: <Sun className="w-4 h-4 text-yellow-400" />, items: supps.morning },
+            { t: "Pre-Workout", icon: <Zap className="w-4 h-4 text-orange-400" />, items: supps.preWorkout },
+            { t: "Post-Workout", icon: <Dumbbell className="w-4 h-4 text-green-400" />, items: supps.postWorkout },
+            { t: "Evening", icon: <Moon className="w-4 h-4 text-blue-400" />, items: supps.evening },
+            { t: "Pre-Sleep", icon: <BedDouble className="w-4 h-4 text-indigo-400" />, items: supps.preSleep },
+            { t: "Testosterone/Libido", icon: <Heart className="w-4 h-4 text-red-400" />, items: supps.testosterone },
+            { t: "Longevity", icon: <Zap className="w-4 h-4 text-emerald-400" />, items: supps.longevity }
+          ].map(({ t, icon, items }) => (
+            <div key={t} className="mb-3">
+              <div className="flex items-center gap-2 mb-1 text-sm font-medium">{icon}{t}</div>
+              <div className="space-y-1">
+                {items.map((s, i) => (
+                  <div key={i} className="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
+                    <div>
+                      <span className="text-sm">{s.name}</span>
+                      <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.ev === 'Very Strong' ? 'bg-green-600/30 text-green-300' : s.ev === 'Strong' ? 'bg-blue-600/30 text-blue-300' : 'bg-yellow-600/30 text-yellow-300'}`}>{s.ev}</span>
+                      <div className="text-xs text-gray-400">{s.note}</div>
+                    </div>
+                    <span className="text-sm text-purple-400">{s.dose}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="bg-gray-800 rounded-xl p-3 mt-3">
+        <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm"><BedDouble className="w-4 h-4 text-indigo-400" />Recovery</h3>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="bg-gray-700 rounded p-2"><div className="text-gray-400">Sleep</div><div className="font-bold text-indigo-400">7.5-8.5 hrs</div><div className="text-gray-500">16-18°C room</div></div>
+          <div className="bg-gray-700 rounded p-2"><div className="text-gray-400">Hydration</div><div className="font-bold text-blue-400">3-4L daily</div><div className="text-gray-500">+500ml/hr training</div></div>
+        </div>
+        <div className="mt-2 p-2 bg-indigo-900/20 border border-indigo-700/30 rounded text-xs text-indigo-300">💤 Sleep deprivation: -18% MPS, -24% testosterone</div>
+      </div>
+
+      <div className="text-center text-xs text-gray-500 mt-3 pb-3">Mon/Wed/Fri + Sat • 5-7pm • v3.0 Evidence-Based</div>
     </div>
   );
-};
-
-export default TrainingProgram;
+}
