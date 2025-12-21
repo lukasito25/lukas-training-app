@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="gradientBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradientOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#gradientBlue)" stroke="#1E293B" stroke-width="2"/>
+
+  <!-- Dumbbell -->
+  <!-- Left weight -->
+  <rect x="10" y="35" width="12" height="30" rx="2" fill="url(#gradientOrange)"/>
+  <rect x="12" y="33" width="8" height="34" rx="1" fill="#F97316"/>
+
+  <!-- Bar -->
+  <rect x="22" y="47" width="56" height="6" rx="3" fill="#94A3B8"/>
+  <rect x="22" y="48" width="56" height="4" rx="2" fill="#E2E8F0"/>
+
+  <!-- Right weight -->
+  <rect x="78" y="35" width="12" height="30" rx="2" fill="url(#gradientOrange)"/>
+  <rect x="80" y="33" width="8" height="34" rx="1" fill="#F97316"/>
+
+  <!-- Muscle flex icon overlay -->
+  <circle cx="50" cy="25" r="8" fill="#F59E0B" opacity="0.8"/>
+  <path d="M45 25 Q50 20 55 25 Q52 30 50 28 Q48 30 45 25" fill="#FFFFFF" opacity="0.9"/>
+
+  <!-- Progress indicator -->
+  <circle cx="50" cy="75" r="6" fill="none" stroke="#10B981" stroke-width="2" opacity="0.8"/>
+  <circle cx="50" cy="75" r="6" fill="none" stroke="#10B981" stroke-width="2"
+          stroke-dasharray="12 6" stroke-dashoffset="0" opacity="0.6">
+    <animateTransform attributeName="transform" type="rotate"
+                      values="0 50 75;360 50 75" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="50" cy="75" r="2" fill="#10B981"/>
+</svg>

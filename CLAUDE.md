@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is "Lukas's 3x/Week Aesthetic Training Program" - a React-based fitness tracking application for a 12-week progressive training program with integrated nutrition and supplement tracking.
+This is "Lukas's Fitness Companion" - a scientific evidence-based training application with 6-mesocycle periodization (48 weeks total), movement plane optimization, and real-time cloud synchronization. The primary goal is transforming from FFMI 17.5 to 20.0 within 12 months using proven hypertrophy protocols.
 
 ## Development Commands
 
@@ -38,16 +38,21 @@ The project is a single implementation with cloud synchronization:
 The app is a single-page React application with the main component `TrainingProgram` that manages:
 
 **State Management:**
-- `currentWeek` (1-12) - Controls which week of the program is active
-- `completedExercises` - Object tracking exercise completion by day/week
-- `exerciseWeights` - Object tracking weights used per exercise/week
-- `nutritionGoals` - Object tracking nutrition/supplement completion
-- `completedSessions` - Array storing saved workout sessions
-- `showHistory` - Boolean controlling history modal display
+- `meso` (1-6) - Controls which mesocycle is active
+- `week` (1-8) - Controls which week within the mesocycle is active
+- `day` (push/pull/legs/arms) - Controls which training day is selected
+- `done` - Object tracking exercise completion by mesocycle/week/day
+- `weights` - Object tracking weights used per exercise
+- `nutritionDone` - Object tracking nutrition/supplement completion
+- `measurements` - Array storing body measurements for FFMI tracking
 
-**Phase System:**
-- **Foundation Phase** (weeks 1-4): Building movement patterns
-- **Growth Phase** (weeks 5-8): Higher volume for muscle growth
+**Mesocycle System:**
+- **M1 Foundation** (weeks 1-8): Base strength & movement patterns
+- **M2 Volume I** (weeks 9-16): Hypertrophy accumulation phase
+- **M3 Intensity I** (weeks 17-24): Strength & neural adaptations
+- **M4 Volume II** (weeks 25-32): Peak hypertrophy volume
+- **M5 Intensity II** (weeks 33-40): Advanced techniques & strength
+- **M6 Peak** (weeks 41-48): Competition prep & refinement
 - **Intensity Phase** (weeks 9-12): Advanced techniques and peak strength
 
 **Data Structure:**

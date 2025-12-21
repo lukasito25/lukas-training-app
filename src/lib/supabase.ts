@@ -47,6 +47,22 @@ export interface UserPreferences {
   weights: Record<string, number>
   done_warmup: Record<string, boolean>
   done_cool: Record<string, boolean>
+  nutrition_done: Record<string, boolean>
+  created_at?: string
+  updated_at?: string
+}
+
+export interface BodyMeasurement {
+  id?: string
+  user_id?: string
+  mesocycle: number
+  measurement_type: 'start' | 'end'
+  arms: number
+  chest: number
+  shoulders: number
+  traps: number
+  weight: number
+  date: string
   created_at?: string
   updated_at?: string
 }
@@ -144,7 +160,8 @@ export class DatabaseService {
           done: {},
           weights: {},
           done_warmup: {},
-          done_cool: {}
+          done_cool: {},
+          nutrition_done: {}
         }
       }
       throw error
@@ -162,5 +179,62 @@ export class DatabaseService {
       .eq('user_id', this.userId)
 
     if (error) throw error
+  }
+
+  // Save body measurements
+  static async saveMeasurement(measurement: Omit<BodyMeasurement, 'id' | 'user_id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('body_measurements')
+      .insert({
+        user_id: this.userId,
+        ...measurement
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
+  // Get measurements for a specific mesocycle
+  static async getMeasurementsForMesocycle(mesocycle: number): Promise<BodyMeasurement[]> {
+    const { data, error } = await supabase
+      .from('body_measurements')
+      .select('*')
+      .eq('user_id', this.userId)
+      .eq('mesocycle', mesocycle)
+      .order('measurement_type', { ascending: true })
+
+    if (error) throw error
+    return data || []
+  }
+
+  // Get all measurements
+  static async getAllMeasurements(): Promise<BodyMeasurement[]> {
+    const { data, error } = await supabase
+      .from('body_measurements')
+      .select('*')
+      .eq('user_id', this.userId)
+      .order('mesocycle', { ascending: true })
+
+    if (error) throw error
+    return data || []
+  }
+
+  // Update a measurement
+  static async updateMeasurement(id: string, measurement: Partial<BodyMeasurement>) {
+    const { data, error } = await supabase
+      .from('body_measurements')
+      .update({
+        ...measurement,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .eq('user_id', this.userId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
   }
 }

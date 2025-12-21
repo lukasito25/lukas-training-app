@@ -1,0 +1,54 @@
+{
+  "name": "Lukas's Fitness Companion - FFMI 20 Goal",
+  "short_name": "Fitness Companion",
+  "description": "Evidence-based 3x/week aesthetic training program with cloud sync. Transform from FFMI 17.5 to 20 with progressive mesocycles.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#1E40AF",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/fitness-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["fitness", "health", "lifestyle", "sports"],
+  "screenshots": [
+    {
+      "src": "/fitness-icon.svg",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today's Workout",
+      "short_name": "Workout",
+      "description": "Jump directly to today's training session",
+      "url": "/?view=workout",
+      "icons": [
+        {
+          "src": "/fitness-icon.svg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Track Progress",
+      "short_name": "Progress",
+      "description": "View your fitness progress and measurements",
+      "url": "/?view=measurements",
+      "icons": [
+        {
+          "src": "/fitness-icon.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
