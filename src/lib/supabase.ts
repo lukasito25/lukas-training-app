@@ -74,7 +74,7 @@ export class DatabaseService {
   // Test database connection
   static async testConnection() {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('user_preferences')
         .select('count')
         .limit(1);

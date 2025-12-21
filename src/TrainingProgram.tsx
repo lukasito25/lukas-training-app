@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CheckCircle2, Circle, RotateCcw, Clock, Plus, Minus, Play, Dumbbell, Heart, Zap, X, Sun, Moon, Pill, Apple, Flame, Wind, BedDouble, TrendingUp, Ruler, Bell, BellRing, Wifi, WifiOff, Check, AlertCircle } from "lucide-react";
+import { CheckCircle2, Circle, RotateCcw, Clock, Plus, Minus, Play, Dumbbell, Heart, Zap, X, Sun, Moon, Pill, Apple, Flame, Wind, BedDouble, TrendingUp, Ruler, Bell, BellRing, Wifi, Check, AlertCircle } from "lucide-react";
 import { DatabaseService, BodyMeasurement } from './lib/supabase';
 import { NotificationService } from './services/notifications';
 
