@@ -71,17 +71,7 @@ export class NotificationService {
         icon: '/fitness-icon.svg',
         badge: '/fitness-icon.svg',
         tag: 'workout-reminder',
-        requireInteraction: true,
-        actions: [
-          {
-            action: 'start-workout',
-            title: 'Start Workout'
-          },
-          {
-            action: 'view-gains',
-            title: 'View Expected Gains'
-          }
-        ]
+        requireInteraction: true
       });
     }
   }
@@ -110,7 +100,7 @@ export class NotificationService {
   }
 
   // Get expected gains for current mesocycle/week
-  static getExpectedGainsMessage(mesocycle: number, week: number, isDeload: boolean): string {
+  static getExpectedGainsMessage(mesocycle: number, _week: number, isDeload: boolean): string {
     if (isDeload) {
       return "Recovery week - preparing for next phase";
     }
@@ -157,7 +147,7 @@ export class NotificationService {
   }
 
   // Utility function to convert VAPID key
-  private static urlBase64ToUint8Array(base64String: string): Uint8Array {
+  private static urlBase64ToUint8Array(base64String: string): ArrayBuffer {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
       .replace(/\-/g, '+')
@@ -169,7 +159,7 @@ export class NotificationService {
     for (let i = 0; i < rawData.length; ++i) {
       outputArray[i] = rawData.charCodeAt(i);
     }
-    return outputArray;
+    return outputArray.buffer;
   }
 
   // Check notification permission status
