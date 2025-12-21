@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CheckCircle2, Circle, RotateCcw, Clock, Plus, Minus, Play, Dumbbell, Heart, Zap, X, Sun, Moon, Pill, Apple, Flame, Wind, BedDouble, TrendingUp, Ruler, Bell, BellRing } from "lucide-react";
+import { CheckCircle2, Circle, RotateCcw, Clock, Plus, Minus, Play, Dumbbell, Heart, Zap, X, Sun, Moon, Pill, Apple, Flame, Wind, BedDouble, TrendingUp, Ruler, Bell, BellRing, Wifi, WifiOff, Check, AlertCircle } from "lucide-react";
 import { DatabaseService, BodyMeasurement } from './lib/supabase';
 import { NotificationService } from './services/notifications';
 
@@ -259,6 +259,7 @@ export default function GymCompanion() {
   const [measurements, setMeasurements] = useState<BodyMeasurement[]>([]);
   const [showMeasurements, setShowMeasurements] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   // Load data from Supabase on component mount
   useEffect(() => {
@@ -267,6 +268,12 @@ export default function GymCompanion() {
 
   const loadData = async () => {
     try {
+      // Test connection first
+      const connectionOk = await DatabaseService.testConnection();
+      if (!connectionOk) {
+        console.error('Database connection failed - app may not sync properly');
+      }
+
       const [preferences, allMeasurements] = await Promise.all([
         DatabaseService.getPreferences(),
         DatabaseService.getAllMeasurements()
@@ -288,7 +295,7 @@ export default function GymCompanion() {
       // Initialize notifications
       initializeNotifications();
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Failed to load app data:', error);
     } finally {
       setLoading(false);
     }
@@ -321,8 +328,10 @@ export default function GymCompanion() {
   };
 
   const saveData = async (newData: any) => {
+    setSyncStatus('saving');
+
     try {
-      await DatabaseService.savePreferences({
+      const dataToSave = {
         meso,
         week,
         day,
@@ -332,9 +341,19 @@ export default function GymCompanion() {
         done_cool: doneCool,
         nutrition_done: nutritionDone,
         ...newData
-      });
+      };
+
+      await DatabaseService.savePreferences(dataToSave);
+      setSyncStatus('saved');
+
+      // Clear the saved status after 2 seconds
+      setTimeout(() => setSyncStatus('idle'), 2000);
     } catch (error) {
-      console.error('Failed to save data:', error);
+      console.error('Database sync failed:', error);
+      setSyncStatus('error');
+
+      // Clear error status after 5 seconds
+      setTimeout(() => setSyncStatus('idle'), 5000);
     }
   };
 
@@ -679,9 +698,15 @@ export default function GymCompanion() {
 
   const toggle = async (i: number) => {
     const k = `${meso}-${week}-${day}-${i}`;
+    console.log(`🔄 Toggling exercise ${i}, key: ${k}, current value: ${done[k]}`);
+
     const newDone = { ...done, [k]: !done[k] };
+    console.log(`📝 New done state:`, newDone);
+
     setDone(newDone);
     await saveData({ done: newDone });
+
+    console.log(`✅ Exercise ${i} toggle completed`);
   };
   const toggleW = async (i: number) => {
     const k = `${meso}-${week}-${day}-w-${i}`;
@@ -764,6 +789,35 @@ export default function GymCompanion() {
     return measurements.filter(m => m.mesocycle === meso);
   };
 
+  // Test function for debugging database operations
+  const testDatabaseOps = async () => {
+    console.log('🧪 Testing database operations...');
+
+    // Test save
+    const testData = {
+      meso: 1,
+      week: 1,
+      day: 'push',
+      done: { 'test-key': true },
+      weights: { 'test-weight': 100 },
+      done_warmup: {},
+      done_cool: {},
+      nutrition_done: {}
+    };
+
+    console.log('💾 Testing save operation...');
+    await DatabaseService.savePreferences(testData);
+
+    console.log('📥 Testing load operation...');
+    const loadedData = await DatabaseService.getPreferences();
+    console.log('📦 Loaded data:', loadedData);
+
+    console.log('🧪 Database test completed');
+  };
+
+  // Make test function globally available for debugging
+  (window as any).testDatabaseOps = testDatabaseOps;
+
   // Save measurement
   const saveMeasurement = async (measurementData: Omit<BodyMeasurement, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     try {
@@ -828,6 +882,24 @@ export default function GymCompanion() {
             >
               {notificationsEnabled ? <BellRing className="w-4 h-4" /> : <Bell className="w-4 h-4" />}
             </button>
+            <div
+              className={`p-1 rounded transition-colors ${
+                syncStatus === 'saving' ? 'bg-yellow-600 animate-pulse' :
+                syncStatus === 'saved' ? 'bg-green-600' :
+                syncStatus === 'error' ? 'bg-red-600' : 'bg-gray-600'
+              }`}
+              title={
+                syncStatus === 'saving' ? 'Saving to cloud...' :
+                syncStatus === 'saved' ? 'Data saved to cloud' :
+                syncStatus === 'error' ? 'Sync error - data saved locally' :
+                'Cloud sync ready'
+              }
+            >
+              {syncStatus === 'saving' ? <Clock className="w-4 h-4 text-white" /> :
+               syncStatus === 'saved' ? <Check className="w-4 h-4 text-white" /> :
+               syncStatus === 'error' ? <AlertCircle className="w-4 h-4 text-white" /> :
+               <Wifi className="w-4 h-4 text-white" />}
+            </div>
             <button
               onClick={() => setShowMeasurements(true)}
               className="p-1 bg-blue-600 hover:bg-blue-500 rounded text-white transition-colors"

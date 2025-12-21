@@ -71,6 +71,26 @@ export interface BodyMeasurement {
 export class DatabaseService {
   private static userId = 'anonymous'
 
+  // Test database connection
+  static async testConnection() {
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('count')
+        .limit(1);
+
+      if (error) {
+        console.error('Database connection test failed:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Database connection error:', error);
+      return false;
+    }
+  }
+
   // Save completed session
   static async saveSession(sessionData: Omit<CompletedSession, 'id' | 'user_id' | 'created_at' | 'updated_at'>) {
     const { data, error } = await supabase
@@ -100,74 +120,85 @@ export class DatabaseService {
 
   // Save user preferences (current state)
   static async savePreferences(preferences: Omit<UserPreferences, 'id' | 'user_id' | 'created_at' | 'updated_at'>) {
-    // First, try to update existing record
-    const { data: updateData, error: updateError } = await supabase
-      .from('user_preferences')
-      .update({
-        ...preferences,
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', this.userId)
-      .select()
-      .single()
-
-    // If update succeeded, return the data
-    if (updateData && !updateError) {
-      return updateData;
-    }
-
-    // If no row exists (PGRST116 error), insert new record
-    if (updateError && updateError.code === 'PGRST116') {
-      const { data: insertData, error: insertError } = await supabase
+    try {
+      // First, try to update existing record
+      const { data: updateData, error: updateError } = await supabase
         .from('user_preferences')
-        .insert({
-          user_id: this.userId,
-          ...preferences
+        .update({
+          ...preferences,
+          updated_at: new Date().toISOString()
         })
+        .eq('user_id', this.userId)
         .select()
         .single()
 
-      if (insertError) {
-        throw insertError;
+      // If update succeeded, return the data
+      if (updateData && !updateError) {
+        return updateData;
       }
 
-      return insertData;
-    }
+      // If no row exists (PGRST116 error), insert new record
+      if (updateError && updateError.code === 'PGRST116') {
+        const { data: insertData, error: insertError } = await supabase
+          .from('user_preferences')
+          .insert({
+            user_id: this.userId,
+            ...preferences
+          })
+          .select()
+          .single()
 
-    // If there was a different error, throw it
-    if (updateError) {
-      throw updateError;
-    }
+        if (insertError) {
+          throw insertError;
+        }
 
-    return updateData;
+        return insertData;
+      }
+
+      // If there was a different error, throw it
+      if (updateError) {
+        throw updateError;
+      }
+
+      return updateData;
+    } catch (error) {
+      console.error('Database save operation failed:', error);
+      throw error;
+    }
   }
 
   // Get user preferences
   static async getPreferences(): Promise<UserPreferences | null> {
-    const { data, error } = await supabase
-      .from('user_preferences')
-      .select('*')
-      .eq('user_id', this.userId)
-      .single()
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', this.userId)
+        .single()
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-        // No row found, return default
-        return {
-          meso: 1,
-          week: 1,
-          day: "push",
-          done: {},
-          weights: {},
-          done_warmup: {},
-          done_cool: {},
-          nutrition_done: {}
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No row found, return default
+          return {
+            meso: 1,
+            week: 1,
+            day: "push",
+            done: {},
+            weights: {},
+            done_warmup: {},
+            done_cool: {},
+            nutrition_done: {}
+          };
         }
+        console.error('Database load operation failed:', error);
+        throw error;
       }
-      throw error
-    }
 
-    return data
+      return data;
+    } catch (error) {
+      console.error('Database load operation failed:', error);
+      throw error;
+    }
   }
 
   // Delete a session
