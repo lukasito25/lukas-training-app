@@ -399,6 +399,23 @@ export default function GymCompanion() {
       { name: "Band Curls", val: "15-20 reps", notes: "Light, feel biceps", type: "activation" },
       { name: "Band Pushdowns", val: "15-20 reps", notes: "Light, feel triceps", type: "activation" },
       { name: "Shoulder Dislocations", val: "10 reps", notes: "Prepare shoulders", type: "mobility" }
+    ]},
+    active_recovery: { name: "Active Recovery Prep (10 min)", science: "Light movement promotes blood flow & reduces muscle stiffness (Barnett 2006)", items: [
+      { name: "Gentle Walking", val: "5 min", notes: "Easy pace, outdoors if possible", type: "cardio" },
+      { name: "Full Body Circles", val: "30s each", notes: "Arms, hips, ankles", type: "mobility" },
+      { name: "Cat-Cow Stretch", val: "10 cycles", notes: "Gentle spinal movement", type: "mobility" },
+      { name: "Deep Breathing", val: "2 min", notes: "4-7-8 pattern for parasympathetic", type: "recovery" },
+      { name: "Joint Rotations", val: "30s each", notes: "Shoulders, wrists, ankles", type: "mobility" }
+    ]},
+    rest: { name: "Recovery Preparation (5 min)", science: "Stress reduction & nervous system recovery optimize adaptation", items: [
+      { name: "Deep Breathing", val: "3 min", notes: "4-7-8 pattern", type: "recovery" },
+      { name: "Gentle Neck Rolls", val: "30s each dir", notes: "Release tech neck tension", type: "mobility" },
+      { name: "Shoulder Shrugs", val: "10 reps", notes: "Hold 3s, release tension", type: "mobility" },
+      { name: "Mindful Body Scan", val: "90 sec", notes: "Check in with recovery", type: "recovery" }
+    ]},
+    full_rest: { name: "Deep Recovery (5 min)", science: "Parasympathetic dominance essential for supercompensation", items: [
+      { name: "Box Breathing", val: "4 min", notes: "4-4-4-4 pattern", type: "recovery" },
+      { name: "Progressive Muscle Relaxation", val: "60 sec", notes: "Tense 5s, release", type: "recovery" }
     ]}
   };
 
@@ -435,6 +452,23 @@ export default function GymCompanion() {
       { name: "90/90 Hip Stretch", val: "45s each", notes: "Internal/external rotation", type: "mobility" },
       { name: "Reverse Kegels", val: "10-15 reps", notes: "Relax on inhale, 3-5s hold", type: "pelvic" },
       { name: "Deep Breathing", val: "60 sec", notes: "Parasympathetic activation", type: "recovery" }
+    ]},
+    active_recovery: { name: "Active Recovery Wind-Down (8 min)", science: "Gentle stretching maintains mobility without fatigue", items: [
+      { name: "Full Body Stretch Flow", val: "3 min", notes: "Slow, flowing movements", type: "flow" },
+      { name: "Hip Circles", val: "30s each dir", notes: "Gentle, controlled", type: "mobility" },
+      { name: "Spinal Waves", val: "60 sec", notes: "Undulate spine segment by segment", type: "mobility" },
+      { name: "Restorative Child's Pose", val: "90 sec", notes: "Focus on deep breathing", type: "static" },
+      { name: "Legs-Up-Wall", val: "2 min", notes: "Lymphatic drainage", type: "recovery" }
+    ]},
+    rest: { name: "Recovery Integration (6 min)", science: "Parasympathetic activation promotes growth hormone release", items: [
+      { name: "Gentle Self-Massage", val: "2 min", notes: "Focus on tight areas", type: "recovery" },
+      { name: "Meditation/Mindfulness", val: "3 min", notes: "Body awareness, gratitude", type: "recovery" },
+      { name: "Recovery Journaling", val: "60 sec", notes: "Rate sleep, stress, energy", type: "recovery" }
+    ]},
+    full_rest: { name: "Deep Recovery Protocol (8 min)", science: "Extended parasympathetic dominance optimizes adaptation", items: [
+      { name: "Yoga Nidra", val: "5 min", notes: "Body scan relaxation", type: "recovery" },
+      { name: "Gratitude Practice", val: "2 min", notes: "3 things you're grateful for", type: "recovery" },
+      { name: "Sleep Preparation", val: "60 sec", notes: "Set intention for rest", type: "recovery" }
     ]}
   };
 
@@ -471,6 +505,26 @@ export default function GymCompanion() {
     longevity: [
       { name: "Berberine", dose: "500mg 2-3x", ev: "Strong", note: "Like metformin" },
       { name: "CoQ10/Ubiquinol", dose: "100-200mg", ev: "Moderate", note: "Mitochondrial" }
+    ],
+    restDay: [
+      { name: "Vitamin D3", dose: "2000-4000 IU", ev: "Strong", note: "Immune function, hormone production" },
+      { name: "Omega-3 (EPA/DHA)", dose: "2-3g", ev: "Strong", note: "Anti-inflammatory, recovery" },
+      { name: "Magnesium Glycinate", dose: "200-400mg", ev: "Strong", note: "Muscle relaxation, sleep quality" },
+      { name: "Ashwagandha KSM-66", dose: "600mg", ev: "Strong", note: "Stress reduction, cortisol management" },
+      { name: "Tart Cherry Extract", dose: "480mg", ev: "Moderate", note: "Natural melatonin, sleep quality" }
+    ],
+    activeRecovery: [
+      { name: "Electrolyte Blend", dose: "Per bottle", ev: "Moderate", note: "Hydration during light activity" },
+      { name: "BCAAs/EAAs", dose: "10-15g", ev: "Moderate", note: "Muscle preservation during light activity" },
+      { name: "Glutamine", dose: "10-15g", ev: "Moderate", note: "Immune support, gut health" },
+      { name: "Vitamin C", dose: "500-1000mg", ev: "Strong", note: "Antioxidant, immune support" }
+    ],
+    deepRecovery: [
+      { name: "ZMA (Zinc, Magnesium, B6)", dose: "Per label", ev: "Strong", note: "Sleep quality, hormone optimization" },
+      { name: "Melatonin", dose: "0.5-3mg", ev: "Strong", note: "Sleep onset, circadian rhythm" },
+      { name: "L-Theanine", dose: "200-400mg", ev: "Moderate", note: "Relaxation without drowsiness" },
+      { name: "Glycine", dose: "3g", ev: "Moderate", note: "Sleep quality, collagen synthesis" },
+      { name: "GABA", dose: "750mg", ev: "Moderate", note: "Nervous system calming" }
     ]
   };
 
@@ -688,6 +742,91 @@ export default function GymCompanion() {
         { name: "Barbell Curls", sets: 3, reps: "10-12", rest: "90 sec", notes: "Finish", muscles: ["biceps"], demo: "https://exrx.net/WeightExercises/Biceps/BBCurl", plane: "sagittal" },
         { name: "Diamond Push-Ups", sets: 3, reps: "12-15", rest: "60 sec", notes: "Bodyweight finish", muscles: ["triceps", "chest", "core"], demo: "https://www.youtube.com/results?search_query=diamond+push+ups", plane: "sagittal" }
       ]
+    },
+    active_recovery: {
+      1: [
+        { name: "Light Walking/Movement", sets: 1, reps: "20-30 min", rest: "-", notes: "Zone 1 HR (50-60%), outdoors preferred", muscles: [], demo: "https://www.youtube.com/results?search_query=zone+1+walking+benefits", plane: "sagittal" },
+        { name: "Gentle Yoga Flow", sets: 1, reps: "15-20 min", rest: "-", notes: "Focus on mobility, avoid intense poses", muscles: ["core"], demo: "https://www.youtube.com/results?search_query=gentle+yoga+flow", plane: "multi" },
+        { name: "Breathing Exercises", sets: 3, reps: "5 min each", rest: "2 min", notes: "4-7-8 pattern, parasympathetic activation", muscles: [], demo: "https://www.youtube.com/results?search_query=4+7+8+breathing", plane: "sagittal" }
+      ],
+      2: [
+        { name: "Nature Walk", sets: 1, reps: "30-40 min", rest: "-", notes: "Vitamin D + nature benefits, Zone 1 HR", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Dynamic Stretching", sets: 1, reps: "12-15 min", rest: "-", notes: "Joint mobility, blood flow without fatigue", muscles: [], demo: "https://www.youtube.com/results?search_query=dynamic+stretching+routine", plane: "multi" },
+        { name: "Foam Rolling", sets: 1, reps: "10-15 min", rest: "-", notes: "Focus on tight areas from training", muscles: [], demo: "https://www.youtube.com/results?search_query=foam+rolling+routine", plane: "sagittal" }
+      ],
+      3: [
+        { name: "Swimming/Water Walking", sets: 1, reps: "25-30 min", rest: "-", notes: "Low impact, full body recovery", muscles: [], demo: "", plane: "multi" },
+        { name: "Meditation/Mindfulness", sets: 1, reps: "10-15 min", rest: "-", notes: "Stress reduction, cortisol management", muscles: [], demo: "https://www.youtube.com/results?search_query=meditation+for+athletes", plane: "sagittal" }
+      ],
+      4: [
+        { name: "Light Cycling", sets: 1, reps: "25-35 min", rest: "-", notes: "Zone 1 HR, promote blood flow", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Stretching + Recovery", sets: 1, reps: "15-20 min", rest: "-", notes: "Static stretches + deep breathing", muscles: [], demo: "https://www.youtube.com/results?search_query=recovery+stretching+routine", plane: "multi" }
+      ],
+      5: [
+        { name: "Tai Chi/Qi Gong", sets: 1, reps: "20-25 min", rest: "-", notes: "Mind-body connection, gentle movement", muscles: [], demo: "https://www.youtube.com/results?search_query=tai+chi+for+recovery", plane: "multi" },
+        { name: "Light Bodyweight Movement", sets: 1, reps: "10-12 min", rest: "-", notes: "Gentle calisthenics, joint health", muscles: [], demo: "", plane: "multi" }
+      ],
+      6: [
+        { name: "Leisurely Walk + Reflection", sets: 1, reps: "30-40 min", rest: "-", notes: "Peak phase recovery, journal thoughts", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Restorative Yoga", sets: 1, reps: "20-25 min", rest: "-", notes: "Deep relaxation poses", muscles: [], demo: "https://www.youtube.com/results?search_query=restorative+yoga", plane: "multi" }
+      ]
+    },
+    rest: {
+      1: [
+        { name: "Sleep Quality Assessment", sets: 1, reps: "2 min", rest: "-", notes: "Track: duration, quality, morning energy 1-10", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Stress Level Check-In", sets: 1, reps: "3 min", rest: "-", notes: "Rate stress 1-10, identify sources", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Hydration Focus", sets: 8, reps: "250-300ml", rest: "hourly", notes: "Clear urine = adequate hydration", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Nutrition Planning", sets: 1, reps: "10 min", rest: "-", notes: "Plan next day's meals, prep if needed", muscles: [], demo: "", plane: "sagittal" }
+      ],
+      2: [
+        { name: "Recovery Metrics", sets: 1, reps: "5 min", rest: "-", notes: "HRV, RHR, subjective recovery 1-10", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Gentle Self-Massage", sets: 1, reps: "15-20 min", rest: "-", notes: "Lacrosse ball, focus on trouble spots", muscles: [], demo: "https://www.youtube.com/results?search_query=self+massage+recovery", plane: "sagittal" },
+        { name: "Reading/Learning", sets: 1, reps: "30+ min", rest: "-", notes: "Fitness knowledge, personal development", muscles: [], demo: "", plane: "sagittal" }
+      ],
+      3: [
+        { name: "Complete Rest Focus", sets: 1, reps: "Full day", rest: "-", notes: "Minimize physical stress, prioritize rest", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Social Connection", sets: 1, reps: "60+ min", rest: "-", notes: "Friends, family - mental health support", muscles: [], demo: "", plane: "sagittal" }
+      ],
+      4: [
+        { name: "Body Composition Check", sets: 1, reps: "5 min", rest: "-", notes: "Progress photos, measurements if scheduled", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Program Reflection", sets: 1, reps: "10 min", rest: "-", notes: "What's working? What needs adjustment?", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Meal Prep", sets: 1, reps: "60-90 min", rest: "-", notes: "Prepare protein sources, vegetables", muscles: [], demo: "", plane: "sagittal" }
+      ],
+      5: [
+        { name: "Recovery Prioritization", sets: 1, reps: "Full day", rest: "-", notes: "Maximum rest for adaptation", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Supplement Inventory", sets: 1, reps: "10 min", rest: "-", notes: "Restock needed items", muscles: [], demo: "", plane: "sagittal" }
+      ],
+      6: [
+        { name: "Peak Phase Rest", sets: 1, reps: "Full day", rest: "-", notes: "Competition prep recovery", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Mental Preparation", sets: 1, reps: "15 min", rest: "-", notes: "Visualization, goal reinforcement", muscles: [], demo: "", plane: "sagittal" }
+      ]
+    },
+    full_rest: {
+      1: [
+        { name: "Extended Sleep", sets: 1, reps: "8-9 hours", rest: "-", notes: "Foundation phase recovery", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Complete Physical Rest", sets: 1, reps: "Full day", rest: "-", notes: "No structured exercise, gentle movement only", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Stress Management", sets: 1, reps: "30+ min", rest: "-", notes: "Meditation, hobbies, relaxation", muscles: [], demo: "", plane: "sagittal" }
+      ],
+      2: [
+        { name: "Recovery Sleep", sets: 1, reps: "8-9 hours", rest: "-", notes: "Growth hormone optimization", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Creative Pursuits", sets: 1, reps: "60+ min", rest: "-", notes: "Art, music, writing - mental recovery", muscles: [], demo: "", plane: "sagittal" }
+      ],
+      3: [
+        { name: "Deep Recovery Sleep", sets: 1, reps: "8.5-9+ hours", rest: "-", notes: "Intensity phase demands more rest", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Weekend Reflection", sets: 1, reps: "20 min", rest: "-", notes: "Weekly review, gratitude practice", muscles: [], demo: "", plane: "sagittal" }
+      ],
+      4: [
+        { name: "Volume Phase Recovery", sets: 1, reps: "9+ hours", rest: "-", notes: "Peak volume requires maximum rest", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Social Activities", sets: 1, reps: "2+ hours", rest: "-", notes: "Maintain relationships, stress relief", muscles: [], demo: "", plane: "sagittal" }
+      ],
+      5: [
+        { name: "Intensity Recovery Sleep", sets: 1, reps: "9+ hours", rest: "-", notes: "Neural recovery from heavy training", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Passive Recovery", sets: 1, reps: "Full day", rest: "-", notes: "Massage, sauna, complete relaxation", muscles: [], demo: "", plane: "sagittal" }
+      ],
+      6: [
+        { name: "Competition Prep Rest", sets: 1, reps: "9+ hours", rest: "-", notes: "Peak performance requires peak rest", muscles: [], demo: "", plane: "sagittal" },
+        { name: "Mental Relaxation", sets: 1, reps: "2+ hours", rest: "-", notes: "Unstructured time, fun activities", muscles: [], demo: "", plane: "sagittal" }
+      ]
     }
   };
 
@@ -832,9 +971,12 @@ export default function GymCompanion() {
 
   const days = {
     push: { name: "Push", icon: "💪", color: "bg-red-500" },
+    active_recovery: { name: "Active Recovery", icon: "🚶", color: "bg-cyan-500" },
     pull: { name: "Pull", icon: "🔙", color: "bg-blue-500" },
+    rest: { name: "Rest", icon: "😴", color: "bg-gray-500" },
     legs: { name: "Legs", icon: "🦵", color: "bg-green-500" },
-    arms: { name: "Arms+", icon: "💎", color: "bg-purple-500" }
+    arms: { name: "Arms+", icon: "💎", color: "bg-purple-500" },
+    full_rest: { name: "Full Rest", icon: "🛌", color: "bg-indigo-600" }
   };
   const tabs = [
     { id: "warmup", icon: <Flame className="w-4 h-4" />, c: "text-orange-400" },

@@ -11,17 +11,32 @@ const urlsToCache = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+      .then((cache) => {
+        // Cache files that exist, skip missing ones
+        return Promise.allSettled(
+          urlsToCache.map(url => cache.add(url).catch(err => console.warn(`Failed to cache ${url}:`, err)))
+        );
+      })
   );
+  self.skipWaiting();
 });
 
 // Fetch from Cache or Network
 self.addEventListener('fetch', (event) => {
+  // Skip caching during development to avoid conflicts
+  if (event.request.url.includes('localhost:5173') || event.request.url.includes('vite')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
         // Return cached version or fetch from network
         return response || fetch(event.request);
+      })
+      .catch(() => {
+        // Fallback to network on cache errors
+        return fetch(event.request);
       })
   );
 });

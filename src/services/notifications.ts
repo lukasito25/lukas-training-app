@@ -19,6 +19,13 @@ export class NotificationService {
       return false;
     }
 
+    // Skip service worker registration in development
+    if (window.location.hostname === 'localhost') {
+      console.log('Skipping service worker registration in development');
+      const permission = await Notification.requestPermission();
+      return permission === 'granted';
+    }
+
     try {
       // Register service worker
       this.registration = await navigator.serviceWorker.register('/sw.js');
