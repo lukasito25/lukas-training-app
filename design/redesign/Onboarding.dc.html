@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding: your week</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#111113}a:hover{color:#3a3a40}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F2F2EE; font-family: Inter, system-ui, sans-serif; color: #111113; display: flex; flex-direction: column; overflow: hidden">
+
+  <div style="display: flex; align-items: center; gap: 12px; padding: 20px 20px 8px">
+    <a href="OnboardingGoal.dc.html" aria-label="Back to goals" style="flex: none; width: 44px; height: 44px; box-sizing: border-box; border-radius: 22px; background: #FFFFFF; border: 1px solid #E4E4DE; display: flex; align-items: center; justify-content: center; color: #111113">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+    </a>
+    <div style="flex: 1 1 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
+      <div style="height: 4px; border-radius: 2px; background: #111113"></div>
+      <div style="height: 4px; border-radius: 2px; background: #111113"></div>
+      <div style="height: 4px; border-radius: 2px; background: #D8D8D1"></div>
+    </div>
+    <span style="font-size: 12px; color: #5C5C63; font-weight: 500">2 of 3</span>
+  </div>
+
+  <div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 22px; padding: 16px 20px 0">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1">How does your week look?</h1>
+      <p style="margin: 0; font-size: 14px; color: #5C5C63; line-height: 1.5">We build the split and exercise choice around this. You can change it any time, here or in chat.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <span style="font-size: 13px; font-weight: 600">Days per week</span>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{dayOpts}}" as="o" hint-placeholder-count="4">
+          <button aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="height: 52px; border-radius: 14px; border: 1px solid {{o.border}}; background: {{o.bg}}; color: {{o.fg}}; font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600">{{o.label}}</button>
+        </sc-for>
+      </div>
+      <span style="font-size: 13px; color: #3A3A40">Suggested split: <b style="font-weight: 600">{{split}}</b></span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <span style="font-size: 13px; font-weight: 600">Session length</span>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{lenOpts}}" as="o" hint-placeholder-count="4">
+          <button aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="height: 44px; border-radius: 12px; border: 1px solid {{o.border}}; background: {{o.bg}}; color: {{o.fg}}; font-size: 14px; font-weight: 600">{{o.label}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <span style="font-size: 13px; font-weight: 600">Equipment you can use</span>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{equip}}" as="e" hint-placeholder-count="6">
+          <button aria-pressed="{{e.pressed}}" onClick="{{e.toggle}}" style="height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid {{e.border}}; background: {{e.bg}}; color: {{e.fg}}; font-size: 13px; font-weight: 600">{{e.label}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <label for="avoid" style="font-size: 13px; font-weight: 600">Injuries or movements to avoid</label>
+      <input id="avoid" type="text" value="Left shoulder: no behind-the-neck pressing" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1px solid #D8D8D1; background: #FFFFFF; font-family: inherit; font-size: 14px; color: #111113">
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 20px 28px">
+    <a href="PlanPreview.dc.html" style="display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 16px; background: #111113; color: #F4F4F0; font-weight: 600; font-size: 16px; text-decoration: none">Build my program</a>
+    <span style="font-size: 12px; color: #5C5C63; text-align: center">Next: review the plan before anything is saved</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { days: 4, len: 60, eq: { Barbell: true, Dumbbells: true, Cables: true, Machines: false, 'Pull-up bar': true, Bands: false } };
+  }
+  renderVals() {
+    var self = this;
+    var on = function (sel) { return sel ? { bg: '#111113', fg: '#F4F4F0', border: '#111113' } : { bg: '#FFFFFF', fg: '#111113', border: '#D8D8D1' }; };
+    var splits = { 3: 'Full body ×3', 4: 'Push · Pull · Legs · Arms', 5: 'Push · Pull · Legs · Upper · Arms', 6: 'Push · Pull · Legs ×2' };
+    var dayOpts = [3, 4, 5, 6].map(function (d) {
+      var s = on(self.state.days === d);
+      return { label: String(d), pressed: self.state.days === d ? 'true' : 'false', bg: s.bg, fg: s.fg, border: s.border, pick: function () { self.setState({ days: d }); } };
+    });
+    var lenOpts = [45, 60, 75, 90].map(function (m) {
+      var s = on(self.state.len === m);
+      return { label: m + ' min', pressed: self.state.len === m ? 'true' : 'false', bg: s.bg, fg: s.fg, border: s.border, pick: function () { self.setState({ len: m }); } };
+    });
+    var equip = Object.keys(this.state.eq).map(function (k) {
+      var sel = self.state.eq[k];
+      var s = on(sel);
+      return { label: k, pressed: sel ? 'true' : 'false', bg: s.bg, fg: s.fg, border: s.border, toggle: function () { var n = Object.assign({}, self.state.eq); n[k] = !n[k]; self.setState({ eq: n }); } };
+    });
+    return { dayOpts: dayOpts, lenOpts: lenOpts, equip: equip, split: splits[this.state.days] };
+  }
+}
+</script>
+</body>
+</html>

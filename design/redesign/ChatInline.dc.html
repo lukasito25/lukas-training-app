@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Companion inside an AI chat</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#111113}a:hover{color:#3a3a40}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 880px; height: 1120px; box-sizing: border-box; background: #FAFAF8; font-family: Inter, system-ui, sans-serif; color: #1C1C1F; display: flex; flex-direction: column; overflow: hidden">
+
+  <div style="display: flex; align-items: center; justify-content: center; height: 52px; border-bottom: 1px solid #E8E8E3; font-size: 13px; color: #5C5C63; flex: none">
+    Host chat · neutral frame standing in for ChatGPT or Claude
+  </div>
+
+  <div style="flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px 0 0; overflow: hidden">
+
+    <div style="width: 680px; display: flex; justify-content: flex-end">
+      <div style="max-width: 420px; padding: 12px 16px; border-radius: 18px; background: #ECECE6; font-size: 15px; line-height: 1.5">What should I train today?</div>
+    </div>
+
+    <div style="width: 680px; display: flex; flex-direction: column; gap: 12px">
+      <p style="margin: 0; font-size: 15px; line-height: 1.6">Push day. You slept 6 hours, so I trimmed it to 26 sets. Bench is set to 82.5 kg because you hit 80 × 10 last week.</p>
+
+      <div style="display: flex; flex-direction: column; border-radius: 20px; border: 1px solid #E2E2DC; background: #FFFFFF; overflow: hidden">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #ECECE6">
+          <span style="width: 24px; height: 24px; border-radius: 7px; background: #111113; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4F55A" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M18 7v10M6 12h12"></path></svg></span>
+          <span style="font-size: 13px; font-weight: 600">Companion</span>
+          <span style="flex: 1 1 auto; font-size: 13px; color: #5C5C63">· Push · 26 sets · ~60 min</span>
+          <span style="font-size: 12px; font-weight: 600; color: #5C5C63">{{logged}} / 26</span>
+        </div>
+        <div style="display: flex; gap: 16px; padding: 16px; align-items: stretch">
+          <div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 12px; color: #5C5C63; font-weight: 500">Now · set {{setNo}} of 4</span>
+              <h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: -0.02em">Barbell Bench Press</h2>
+            </div>
+            <div style="display: flex; gap: 6px">
+              <sc-for list="{{chips}}" as="c" hint-placeholder-count="2">
+                <span style="font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 8px; background: #F2F2EE">{{c}}</span>
+              </sc-for>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-top: 10px; border-top: 1px solid #F0F0EA">
+              <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="font-weight: 600">Incline DB Press</span><span style="color: #5C5C63">3 × 8–12</span></div>
+              <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="font-weight: 600">Landmine Press</span><span style="color: #5C5C63">4 × 8–10</span></div>
+              <div style="font-size: 13px; color: #5C5C63">+ 4 more</div>
+            </div>
+          </div>
+          <div style="flex: none; width: 236px; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 16px; background: #141518; color: #F4F4F0">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #A9A9B0"><span>82.5 kg · suggested</span><span>2 RIR</span></div>
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <button aria-label="One fewer rep" onClick="{{repMinus}}" style="width: 44px; height: 44px; border-radius: 12px; border: 0; background: #24252A; color: #F4F4F0; font-size: 20px">−</button>
+              <div style="display: flex; flex-direction: column; align-items: center">
+                <span style="font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 600">{{reps}}</span>
+                <span style="font-size: 11px; color: #A9A9B0">reps</span>
+              </div>
+              <button aria-label="One more rep" onClick="{{repPlus}}" style="width: 44px; height: 44px; border-radius: 12px; border: 0; background: #24252A; color: #F4F4F0; font-size: 20px">+</button>
+            </div>
+            <button onClick="{{logSet}}" style="height: 44px; border-radius: 12px; border: 0; background: #D4F55A; color: #111113; font-size: 14px; font-weight: 600">Log set {{setNo}}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="width: 680px; display: flex; justify-content: flex-end">
+      <div style="max-width: 460px; padding: 12px 16px; border-radius: 18px; background: #ECECE6; font-size: 15px; line-height: 1.5">My left shoulder is cranky. Swap the landmine press, and keep Saturdays under 45 minutes.</div>
+    </div>
+
+    <div style="width: 680px; display: flex; flex-direction: column; gap: 12px">
+      <p style="margin: 0; font-size: 15px; line-height: 1.6">Here's the change. Nothing is saved until you apply it.</p>
+
+      <div style="display: flex; flex-direction: column; border-radius: 20px; border: 1px solid #E2E2DC; background: #FFFFFF; overflow: hidden">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #ECECE6">
+          <span style="width: 24px; height: 24px; border-radius: 7px; background: #111113; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4F55A" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M18 7v10M6 12h12"></path></svg></span>
+          <span style="font-size: 13px; font-weight: 600">Proposed program change</span>
+          <span style="font-size: 13px; color: #5C5C63">· version 4 → 5</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 16px">
+          <div style="display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 14px">
+            <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: #5C5C63; padding-top: 2px">WEDNESDAY</span>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <span style="color: #6A6A71; text-decoration: line-through">Landmine Press · 4 × 8–10</span>
+              <span style="font-weight: 600">Cable Lateral Raise · 4 × 12–15 <span style="font-weight: 400; color: #5C5C63">· no overhead load</span></span>
+            </div>
+            <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: #5C5C63; padding-top: 2px">SATURDAY</span>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <span><span style="color: #6A6A71; text-decoration: line-through">62 min · 18 sets</span> <b style="font-weight: 600">→ 44 min · 13 sets</b></span>
+              <span style="color: #5C5C63; font-size: 13px">Arms drop to 17 sets a week, still in your effective range</span>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; padding: 0 16px 16px">
+          <button style="height: 44px; padding: 0 20px; border-radius: 12px; border: 0; background: #111113; color: #F4F4F0; font-size: 14px; font-weight: 600">Apply change</button>
+          <button style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #D8D8D1; background: #FFFFFF; color: #111113; font-size: 14px; font-weight: 500">Not now</button>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #5C5C63">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0-4 10.5V17h8v-3.5A6 6 0 0 0 12 3zM9 21h6"></path></svg>
+        Remembered: left shoulder is sensitive to pressing.
+        <a href="Settings.dc.html" style="color: #111113; font-weight: 600">Manage memory</a>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: none; display: flex; justify-content: center; padding: 14px 0 24px">
+    <div style="width: 680px; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: 22px; background: #FFFFFF; border: 1px solid #E2E2DC">
+      <label for="chat-input" style="font-size: 15px; color: #6A6A71">Ask Companion: log a set, swap an exercise, check progress…</label>
+      <input id="chat-input" type="text" aria-label="Message" style="position: absolute; width: 1px; height: 1px; opacity: 0">
+      <div style="display: flex; justify-content: space-between; align-items: center">
+        <span style="display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border-radius: 999px; background: #F2F2EE; font-size: 12px; font-weight: 600">
+          <span style="width: 16px; height: 16px; border-radius: 5px; background: #111113; display: flex; align-items: center; justify-content: center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#D4F55A" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M18 7v10M6 12h12"></path></svg></span>
+          Companion connected
+        </span>
+        <button aria-label="Send" style="width: 36px; height: 36px; border-radius: 18px; border: 0; background: #1C1C1F; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":880,"height":1120}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { reps: 8, logged: [10, 8] };
+  }
+  renderVals() {
+    var self = this;
+    var logged = this.state.logged;
+    var setNo = Math.min(logged.length + 1, 4);
+    return {
+      reps: this.state.reps,
+      setNo: setNo,
+      logged: logged.length,
+      chips: logged.map(function (r, i) { return 'Set ' + (i + 1) + ' · ' + r; }),
+      repPlus: function () { self.setState({ reps: self.state.reps + 1 }); },
+      repMinus: function () { self.setState({ reps: Math.max(1, self.state.reps - 1) }); },
+      logSet: function () { if (self.state.logged.length < 4) { self.setState({ logged: self.state.logged.concat([self.state.reps]) }); } }
+    };
+  }
+}
+</script>
+</body>
+</html>

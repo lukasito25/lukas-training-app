@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Habits and check-in</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#111113}a:hover{color:#3a3a40}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F2F2EE; font-family: Inter, system-ui, sans-serif; color: #111113; display: flex; flex-direction: column; overflow: hidden">
+  <div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 12px; padding: 24px 20px 0">
+
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 600; letter-spacing: -0.02em">Habits</h1>
+        <span style="font-size: 13px; color: #5C5C63">{{doneCount}} of {{total}} today · you choose what to track</span>
+      </div>
+      <button style="height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid #D8D8D1; background: #FFFFFF; font-size: 13px; font-weight: 600; color: #111113">Edit</button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; background: #141518; color: #F4F4F0; border-radius: 22px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; color: #A9A9B0">MORNING CHECK-IN</span>
+        <span style="font-size: 12px; color: #A9A9B0">shapes today's volume</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; align-items: center">
+        <span style="font-size: 13px">Sleep</span>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px">
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">5h</span>
+          <span style="height: 32px; border-radius: 8px; background: #D4F55A; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; color: #111113">6h</span>
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">7h</span>
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">8h</span>
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">9h+</span>
+        </div>
+        <span style="font-size: 13px">Energy</span>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px">
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">1</span>
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">2</span>
+          <span style="height: 32px; border-radius: 8px; background: #D4F55A; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; color: #111113">3</span>
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">4</span>
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">5</span>
+        </div>
+        <span style="font-size: 13px">Soreness</span>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px">
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">none</span>
+          <span style="height: 32px; border-radius: 8px; background: #D4F55A; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; color: #111113">low</span>
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">mid</span>
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">high</span>
+          <span style="height: 32px; border-radius: 8px; background: #24252A; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #A9A9B0">max</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <sc-for list="{{habits}}" as="h" hint-placeholder-count="7">
+        <button aria-pressed="{{h.pressed}}" onClick="{{h.toggle}}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 8px 12px; border: 0; border-radius: {{h.radius}}; background: #FFFFFF; text-align: left; color: #111113">
+          <sc-if value="{{h.done}}" hint-placeholder-val="{{ false }}">
+            <span style="flex: none; width: 28px; height: 28px; border-radius: 9px; background: #111113; color: #D4F55A; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+          </sc-if>
+          <sc-if value="{{h.open}}" hint-placeholder-val="{{ true }}">
+            <span style="flex: none; width: 28px; height: 28px; border-radius: 9px; border: 1.5px solid #C9C9C2; box-sizing: border-box"></span>
+          </sc-if>
+          <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 1px">
+            <span style="font-size: 14px; font-weight: 600">{{h.name}}</span>
+            <span style="font-size: 12px; color: #5C5C63">{{h.detail}}</span>
+          </span>
+          <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: #5C5C63">{{h.group}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <button style="height: 48px; border-radius: 14px; border: 1.5px dashed #C9C9C2; background: transparent; font-size: 14px; font-weight: 600; color: #3A3A40">+ Add a habit</button>
+  </div>
+
+  <nav aria-label="Main" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 8px 8px 22px; background: #FFFFFF; border-top: 1px solid #E4E4DE">
+    <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; color: #6A6A71; text-decoration: none; font-size: 11px; font-weight: 500">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>Today</a>
+    <a href="Workout.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; color: #6A6A71; text-decoration: none; font-size: 11px; font-weight: 500">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"></path></svg>Train</a>
+    <a href="Progress.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; color: #6A6A71; text-decoration: none; font-size: 11px; font-weight: 500">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19h16M7 15l4-4 3 3 5-6"></path></svg>Progress</a>
+    <a href="Nutrition.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; color: #111113; text-decoration: none; font-size: 11px; font-weight: 600">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Habits</a>
+    <a href="Settings.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; color: #6A6A71; text-decoration: none; font-size: 11px; font-weight: 500">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>You</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { done: [true, true, false, false, true, false, true] };
+  }
+  renderVals() {
+    var self = this;
+    var list = [
+      { name: 'Break-fast · 40 g protein', detail: '12:00', group: 'FOOD' },
+      { name: 'Pre-workout · 40 g protein', detail: '15:00–16:00 · include carbs', group: 'FOOD' },
+      { name: 'Post-workout · 40–50 g', detail: '19:30–20:00 · high carbs', group: 'FOOD' },
+      { name: 'Pre-sleep · casein 40 g', detail: 'before bed', group: 'FOOD' },
+      { name: 'Water 3.5 L', detail: '2.1 L so far', group: 'WATER' },
+      { name: 'Magnesium + Zinc', detail: 'evening', group: 'SUPPS' },
+      { name: 'Creatine 5 g', detail: 'any time', group: 'SUPPS' }
+    ];
+    var n = list.length;
+    var done = this.state.done;
+    var habits = list.map(function (h, i) {
+      return Object.assign({}, h, {
+        done: done[i], open: !done[i], pressed: done[i] ? 'true' : 'false',
+        radius: i === 0 ? '14px 14px 4px 4px' : (i === n - 1 ? '4px 4px 14px 14px' : '4px'),
+        toggle: function () { var d = self.state.done.slice(); d[i] = !d[i]; self.setState({ done: d }); }
+      });
+    });
+    return { habits: habits, total: n, doneCount: done.filter(function (d) { return d; }).length };
+  }
+}
+</script>
+</body>
+</html>

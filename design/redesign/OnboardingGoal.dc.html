@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding: your goal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#111113}a:hover{color:#3a3a40}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F2F2EE; font-family: Inter, system-ui, sans-serif; color: #111113; display: flex; flex-direction: column; overflow: hidden">
+
+  <div style="display: flex; align-items: center; gap: 12px; padding: 20px 20px 8px">
+    <span style="width: 44px; height: 44px; border-radius: 12px; background: #111113; display: flex; align-items: center; justify-content: center; flex: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4F55A" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"></path></svg></span>
+    <div style="flex: 1 1 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
+      <div style="height: 4px; border-radius: 2px; background: #111113"></div>
+      <div style="height: 4px; border-radius: 2px; background: #D8D8D1"></div>
+      <div style="height: 4px; border-radius: 2px; background: #D8D8D1"></div>
+    </div>
+    <span style="font-size: 12px; color: #5C5C63; font-weight: 500">1 of 3</span>
+  </div>
+
+  <div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 18px; padding: 14px 20px 0">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1">What are you training for?</h1>
+      <p style="margin: 0; font-size: 14px; color: #5C5C63; line-height: 1.5">Your goal sets the volume, rep ranges and how each block progresses.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{goals}}" as="g" hint-placeholder-count="5">
+        <button aria-pressed="{{g.pressed}}" onClick="{{g.pick}}" style="grid-column: {{g.col}}; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-height: 64px; padding: 12px 14px; border-radius: 16px; border: 1px solid {{g.border}}; background: {{g.bg}}; color: {{g.fg}}; text-align: left">
+          <span style="font-size: 15px; font-weight: 600">{{g.label}}</span>
+          <span style="font-size: 12px; color: {{g.sub}}">{{g.detail}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-size: 13px; font-weight: 600">Muscles to prioritise</span>
+        <span style="font-size: 12px; color: #5C5C63">up to 3 · {{focusCount}} picked</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px">
+        <sc-for list="{{muscles}}" as="m" hint-placeholder-count="8">
+          <button aria-pressed="{{m.pressed}}" onClick="{{m.toggle}}" style="height: 38px; padding: 0 13px; border-radius: 999px; border: 1px solid {{m.border}}; background: {{m.bg}}; color: {{m.fg}}; font-size: 13px; font-weight: 600">{{m.label}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 13px; font-weight: 600">Training experience</span>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 3px; gap: 3px; background: #E4E4DE; border-radius: 13px">
+        <sc-for list="{{levels}}" as="l" hint-placeholder-count="3">
+          <button aria-pressed="{{l.pressed}}" onClick="{{l.pick}}" style="height: 40px; border: 0; border-radius: 10px; background: {{l.bg}}; color: {{l.fg}}; font-size: 13px; font-weight: 600">{{l.label}}</button>
+        </sc-for>
+      </div>
+      <span style="font-size: 12px; color: #5C5C63">{{levelNote}}</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #FFFFFF; border-radius: 16px; border: 1px solid #E4E4DE">
+      <div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 12px; color: #5C5C63">Target · optional</span>
+        <span style="font-size: 14px; font-weight: 600">{{target}}</span>
+      </div>
+      <button style="height: 36px; padding: 0 12px; border-radius: 10px; border: 0; background: #F2F2EE; color: #111113; font-size: 13px; font-weight: 500">Edit</button>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 20px 26px">
+    <a href="Onboarding.dc.html" style="display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 16px; background: #111113; color: #F4F4F0; font-weight: 600; font-size: 16px; text-decoration: none">Continue</a>
+    <span style="font-size: 12px; color: #5C5C63; text-align: center">Already chatting with Companion? It can fill this in for you.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { goal: 'muscle', level: 'Intermediate', focus: { Arms: true, Traps: true } };
+  }
+  renderVals() {
+    var self = this;
+    var on = function (sel) { return sel ? { bg: '#111113', fg: '#F4F4F0', border: '#111113', sub: '#C9C9CE' } : { bg: '#FFFFFF', fg: '#111113', border: '#D8D8D1', sub: '#5C5C63' }; };
+    var goalDefs = [
+      { id: 'muscle', label: 'Build muscle', detail: 'Hypertrophy', target: 'FFMI 17.5 → 20.0 · in 48 weeks' },
+      { id: 'strength', label: 'Get stronger', detail: 'Heavier top sets', target: 'Bench 1RM [your target] kg' },
+      { id: 'fat', label: 'Lose fat', detail: 'Keep muscle', target: 'Body fat [your target] %' },
+      { id: 'general', label: 'Stay fit', detail: 'Consistency first', target: 'Train 3× a week for 12 weeks' },
+      { id: 'sport', label: 'Sport performance', detail: 'Strength and power for your sport', target: '[Your sport] · season starts [date]' }
+    ];
+    var current = goalDefs.filter(function (g) { return g.id === self.state.goal; })[0];
+    var goals = goalDefs.map(function (g, i) {
+      var s = on(g.id === self.state.goal);
+      return { label: g.label, detail: g.detail, col: i === 4 ? '1 / -1' : 'auto', pressed: g.id === self.state.goal ? 'true' : 'false', bg: s.bg, fg: s.fg, border: s.border, sub: s.sub, pick: function () { self.setState({ goal: g.id }); } };
+    });
+    var focus = this.state.focus;
+    var count = Object.keys(focus).filter(function (k) { return focus[k]; }).length;
+    var muscles = ['Chest', 'Back', 'Shoulders', 'Arms', 'Traps', 'Glutes', 'Legs', 'Core'].map(function (m) {
+      var sel = !!focus[m];
+      var s = on(sel);
+      return { label: m, pressed: sel ? 'true' : 'false', bg: s.bg, fg: s.fg, border: s.border, toggle: function () {
+        var n = Object.assign({}, self.state.focus);
+        if (n[m]) { n[m] = false; } else if (count < 3) { n[m] = true; }
+        self.setState({ focus: n });
+      } };
+    });
+    var notes = { Beginner: 'Under 1 year of regular lifting', Intermediate: '1–3 years, comfortable with the main lifts', Advanced: '3+ years, progress comes slowly' };
+    var levels = ['Beginner', 'Intermediate', 'Advanced'].map(function (l) {
+      var sel = l === self.state.level;
+      return { label: l, pressed: sel ? 'true' : 'false', bg: sel ? '#FFFFFF' : 'transparent', fg: sel ? '#111113' : '#5C5C63', pick: function () { self.setState({ level: l }); } };
+    });
+    return { goals: goals, muscles: muscles, focusCount: count, levels: levels, levelNote: notes[this.state.level], target: current.target };
+  }
+}
+</script>
+</body>
+</html>

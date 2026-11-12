@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chat widget kit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#111113}a:hover{color:#3a3a40}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 920px; height: 1120px; box-sizing: border-box; padding: 36px 40px; background: #F2F2EE; font-family: Inter, system-ui, sans-serif; color: #111113; display: flex; flex-direction: column; gap: 22px">
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 600; letter-spacing: -0.02em">Chat widget kit</h1>
+    <p style="margin: 0; font-size: 15px; color: #5C5C63; max-width: 720px; line-height: 1.5">MCP Apps UI resources served from one connector to both hosts. Each tool returns one card: no app chrome, one primary action, the host's font where it allows it. Writes never happen without a button press.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #5C5C63">start_onboarding → generate_program</span>
+      <div style="display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E2E2DC">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <span style="font-size: 14px; font-weight: 600">Build your program</span>
+          <span style="font-size: 12px; color: #5C5C63">filled from chat</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 8px 12px; align-items: center; font-size: 13px">
+          <span style="color: #5C5C63">Goal</span><span style="font-weight: 600">Hypertrophy · arms first</span>
+          <span style="color: #5C5C63">Days</span><span style="font-weight: 600">4 per week</span>
+          <span style="color: #5C5C63">Experience</span><span style="font-weight: 600">Intermediate</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 12px; font-weight: 600">Session length</span>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+            <span style="height: 36px; border-radius: 10px; border: 1px solid #D8D8D1; display: flex; align-items: center; justify-content: center; font-size: 13px">45</span>
+            <span style="height: 36px; border-radius: 10px; background: #111113; color: #F4F4F0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600">60</span>
+            <span style="height: 36px; border-radius: 10px; border: 1px solid #D8D8D1; display: flex; align-items: center; justify-content: center; font-size: 13px">75</span>
+            <span style="height: 36px; border-radius: 10px; border: 1px solid #D8D8D1; display: flex; align-items: center; justify-content: center; font-size: 13px">90</span>
+          </div>
+        </div>
+        <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: #3A3A40; line-height: 1.4"><input type="checkbox" checked style="width: 18px; height: 18px; margin: 0; accent-color: #111113; flex: none">I understand this is general training guidance, not medical advice.</label>
+        <button style="height: 44px; border-radius: 12px; border: 0; background: #111113; color: #F4F4F0; font-size: 14px; font-weight: 600">Generate program</button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #5C5C63">get_progress · metric=ffmi · range=all</span>
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 20px; background: #141518; color: #F4F4F0">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; color: #A9A9B0">FFMI · WEEK 11</span>
+          <span style="font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #D4F55A; color: #111113">On pace</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 8px">
+          <span style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 600; letter-spacing: -0.03em">18.1</span>
+          <span style="font-size: 13px; color: #A9A9B0">17.5 → 20.0</span>
+        </div>
+        <svg width="380" height="120" viewBox="0 0 350 160" role="img" aria-label="FFMI trend from 17.5 to 18.1, on the planned line to 20.0" style="display: block; width: 100%; height: auto">
+          <line x1="12" y1="30" x2="338" y2="30" stroke="#2C2D33" stroke-width="1"></line>
+          <line x1="12" y1="130" x2="338" y2="130" stroke="#2C2D33" stroke-width="1"></line>
+          <line x1="12" y1="130" x2="338" y2="30" stroke="#6A6B72" stroke-width="1.5" stroke-dasharray="4 5"></line>
+          <polyline points="12,130 25.6,126 39.2,122 52.8,118 66.3,114 79.9,110 86.7,106" fill="none" stroke="#D4F55A" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+          <circle cx="86.7" cy="106" r="6" fill="#D4F55A" stroke="#141518" stroke-width="2"></circle>
+        </svg>
+        <span style="font-size: 12px; color: #A9A9B0">Projected 20.0 around week 46 · 37 weeks left</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #5C5C63">get_program_overview · calendar</span>
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E2E2DC">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-size: 14px; font-weight: 600">Block 2 · Volume I</span>
+        <span style="font-size: 12px; color: #5C5C63">Program version 5 · changed today · deload in week 16</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 56px repeat(7, minmax(0, 1fr)); gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: #5C5C63">
+        <span></span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+      </div>
+      <sc-for list="{{weeks}}" as="w" hint-placeholder-count="4">
+        <div style="display: grid; grid-template-columns: 56px repeat(7, minmax(0, 1fr)); gap: 6px; align-items: center">
+          <span style="font-size: 12px; font-weight: 600; color: #3A3A40">Wk {{w.n}}</span>
+          <sc-for list="{{w.days}}" as="d" hint-placeholder-count="7">
+            <span style="height: 34px; border-radius: 9px; display: flex; align-items: center; padding: 0 10px; font-size: 12px; font-weight: 600; background: {{d.bg}}; color: {{d.fg}}; border: {{d.border}}">{{d.label}}</span>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #5C5C63">get_weekly_review</span>
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E2E2DC">
+        <span style="font-size: 14px; font-weight: 600">Week 10 · 4 of 4 sessions</span>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <div style="display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 12px; background: #F2F2EE"><span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">96%</span><span style="font-size: 11px; color: #5C5C63">sets done</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 12px; background: #F2F2EE"><span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">2</span><span style="font-size: 11px; color: #5C5C63">new bests</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 12px; background: #F2F2EE"><span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">−2</span><span style="font-size: 11px; color: #5C5C63">leg sets short</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #5C5C63">log_checkin</span>
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E2E2DC">
+        <span style="font-size: 14px; font-weight: 600">How did you sleep?</span>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px">
+          <span style="height: 40px; border-radius: 10px; border: 1px solid #D8D8D1; display: flex; align-items: center; justify-content: center; font-size: 13px">5h</span>
+          <span style="height: 40px; border-radius: 10px; background: #111113; color: #F4F4F0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600">6h</span>
+          <span style="height: 40px; border-radius: 10px; border: 1px solid #D8D8D1; display: flex; align-items: center; justify-content: center; font-size: 13px">7h</span>
+          <span style="height: 40px; border-radius: 10px; border: 1px solid #D8D8D1; display: flex; align-items: center; justify-content: center; font-size: 13px">8h</span>
+          <span style="height: 40px; border-radius: 10px; border: 1px solid #D8D8D1; display: flex; align-items: center; justify-content: center; font-size: 13px">9h+</span>
+        </div>
+        <span style="font-size: 12px; color: #5C5C63">Under 7 h trims today's volume by about 10%</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 6px; padding-top: 16px; border-top: 1px solid #DCDCD5">
+    <span style="font-size: 12px; font-weight: 600; color: #3A3A40; padding: 5px 0; margin-right: 4px">Other tools, text only:</span>
+    <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; padding: 5px 9px; border-radius: 8px; background: #E6E6E0">explain_exercise</span>
+    <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; padding: 5px 9px; border-radius: 8px; background: #E6E6E0">skip_workout</span>
+    <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; padding: 5px 9px; border-radius: 8px; background: #E6E6E0">log_habit</span>
+    <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; padding: 5px 9px; border-radius: 8px; background: #E6E6E0">log_measurement</span>
+    <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; padding: 5px 9px; border-radius: 8px; background: #E6E6E0">remember_preference</span>
+    <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; padding: 5px 9px; border-radius: 8px; background: #E6E6E0">forget_preference</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":920,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var plan = ['Pull', '', 'Push', '', 'Legs', 'Arms', ''];
+    var week = function (n, doneUpTo, todayIdx) {
+      return {
+        n: n,
+        days: plan.map(function (p, i) {
+          if (!p) return { label: '', bg: 'transparent', fg: '#5C5C63', border: '1px dashed #E2E2DC' };
+          if (i === todayIdx) return { label: p, bg: '#141518', fg: '#D4F55A', border: '1px solid #141518' };
+          if (i < doneUpTo) return { label: p + ' ✓', bg: '#E4E4DE', fg: '#3A3A40', border: '1px solid #E4E4DE' };
+          if (i === 5) return { label: p + ' 44m', bg: '#FFFFFF', fg: '#111113', border: '1.5px solid #6F8F12' };
+          return { label: p, bg: '#F2F2EE', fg: '#111113', border: '1px solid #F2F2EE' };
+        })
+      };
+    };
+    return { weeks: [week(11, 1, 2), week(12, 0, -1), week(13, 0, -1), week(14, 0, -1)] };
+  }
+}
+</script>
+</body>
+</html>
