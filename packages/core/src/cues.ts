@@ -1,0 +1,96 @@
+/**
+ * Short technique cues per library exercise (shown in the app and in the ChatGPT/Claude cards).
+ * Kept to 2–3 plain-language points: setup, the movement, the common mistake.
+ */
+export const CUES: Record<string, string[]> = {
+  // chest
+  "barbell-bench-press": ["Shoulder blades pinched and down, feet planted", "Lower to mid-chest with elbows ~45° from your body", "Press up and slightly back over the shoulders"],
+  "incline-db-press": ["Bench at 30–45°, shoulder blades back", "Lower the dumbbells to upper-chest level", "Press up and slightly in, without clanking at the top"],
+  "incline-barbell-press": ["Bench at 30–45°, grip just outside shoulder width", "Touch the upper chest under the collarbone", "Keep wrists stacked over elbows"],
+  "db-bench-press": ["Kick the dumbbells up from your knees to start", "Lower until you feel a stretch across the chest", "Press up, keeping the dumbbells slightly apart"],
+  "machine-chest-press": ["Seat so handles line up with mid-chest", "Keep shoulder blades against the pad", "Control the return; don't let the stack rest"],
+  "weighted-dips": ["Lean slightly forward for more chest", "Lower until shoulders are just below elbows", "Stop short if your shoulders complain"],
+  "cable-crossovers": ["Soft bend in the elbows, fixed through the rep", "Bring hands together in a hugging arc", "Squeeze for a second, then return slowly"],
+  "db-flyes": ["Slight elbow bend, palms facing", "Open wide until you feel the chest stretch", "Lift by squeezing the chest, not bending the elbows"],
+  "push-ups": ["Hands under shoulders, body in a straight line", "Lower until your chest nearly touches the floor", "Elevate your hands to make it easier"],
+  "band-chest-press": ["Anchor the band behind you at chest height", "Step forward until there's tension at the start", "Press straight ahead and control the return"],
+  // back
+  "weighted-pull-ups": ["Start from a dead hang, shoulders engaged", "Pull your chest towards the bar", "Lower all the way under control"],
+  "pull-ups": ["Grip just outside shoulder width", "Drive elbows down to your sides", "Full hang at the bottom of every rep"],
+  "lat-pulldowns": ["Lean back slightly, chest up", "Pull the bar to the top of your chest", "Let the arms extend fully at the top"],
+  "barbell-rows": ["Hinge to ~45°, back flat, knees soft", "Pull the bar to your lower ribs", "No jerking; torso stays still"],
+  "single-arm-db-row": ["Hand and knee on the bench, back flat", "Row the dumbbell towards your hip", "Stretch at the bottom without twisting"],
+  "seated-cable-rows": ["Sit tall, slight knee bend", "Pull to your belly button, elbows close", "Reach forward at the end without rounding"],
+  "chest-supported-machine-row": ["Chest on the pad the whole set", "Drive elbows back and squeeze the shoulder blades", "Let the shoulders reach forward on the return"],
+  "t-bar-row": ["Hinge with a flat back over the bar", "Pull the handle to your chest", "Keep your hips still; no bouncing"],
+  "straight-arm-pulldowns": ["Arms nearly straight, slight forward lean", "Sweep the bar down to your thighs", "Feel your lats; don't bend the elbows"],
+  "band-rows": ["Anchor the band at chest height", "Pull your elbows back past your torso", "Pause, then return slowly"],
+  "table-rows": ["Lie under a sturdy table and grip its edge", "Pull your chest up to the edge, body straight", "Bend your knees to make it easier"],
+  "inverted-rows": ["Bar at hip height, body straight", "Pull your chest to the bar", "Walk your feet back to make it harder"],
+  // shoulders
+  "overhead-press": ["Squeeze glutes, bar starts on the upper chest", "Press straight up, moving your head back then through", "Lock out with the bar over mid-foot"],
+  "arnold-press": ["Start with palms facing you at chin height", "Rotate the palms forward as you press up", "Reverse the rotation on the way down"],
+  "landmine-press": ["Stagger your stance, bar end at shoulder", "Press up and slightly forward", "Keep the ribs down; don't lean back"],
+  "machine-shoulder-press": ["Handles at shoulder height to start", "Press up without locking hard", "Keep your back on the pad"],
+  "pike-push-ups": ["Hips high in an upside-down V", "Lower the top of your head towards the floor", "Raise your feet to make it harder"],
+  "prone-ytw-raises": ["Lie chest-down on an incline bench", "Lift the arms into a Y, then T, then W", "Light load; squeeze the upper back"],
+  "lateral-raises": ["Slight forward lean, soft elbows", "Raise out to the sides to shoulder height", "Lead with the elbows; no swinging"],
+  "cable-lateral-raises": ["Cable low, across your body", "Raise out to shoulder height", "Slow on the way down"],
+  "band-lateral-raises": ["Stand on the band, handles at your sides", "Raise out to shoulder height", "Pause at the top"],
+  "face-pulls": ["Rope at forehead height", "Pull towards your face, hands apart", "Finish with the elbows high and fists back"],
+  "rear-delt-flyes": ["Hinge forward or lie chest-down", "Open the arms wide, thumbs slightly down", "Light weight; feel the back of the shoulders"],
+  "band-pull-aparts": ["Arms straight in front at shoulder height", "Pull the band apart to your chest", "Squeeze the shoulder blades together"],
+  // traps
+  "barbell-shrugs": ["Stand tall, bar at arm's length", "Shrug straight up towards your ears", "Pause a second at the top; don't roll"],
+  "db-shrugs": ["Dumbbells at your sides", "Lift your shoulders straight up", "Hold, then lower slowly"],
+  "farmers-walks": ["Heavy dumbbells at your sides, stand tall", "Walk with short, quick steps", "Shoulders down and back; don't lean"],
+  // biceps
+  "barbell-curls": ["Elbows pinned at your sides", "Curl up without swinging your hips", "Lower all the way down slowly"],
+  "incline-db-curls": ["Bench at ~45°, arms hanging straight", "Curl without moving the upper arm forward", "Full stretch at the bottom"],
+  "hammer-curls": ["Palms facing each other", "Curl up, keeping the elbows still", "Control the way down"],
+  "cable-curls": ["Stand close to the low cable", "Curl up and squeeze at the top", "Constant tension; don't let it rest"],
+  "band-curls": ["Stand on the band, palms forward", "Curl up and squeeze", "Slow return"],
+  "chin-ups": ["Palms facing you, shoulder-width grip", "Pull your chin over the bar", "Lower to a full hang"],
+  // triceps
+  "close-grip-bench": ["Grip just inside shoulder width", "Elbows tucked as you lower to the lower chest", "Press up through the triceps"],
+  "overhead-cable-extension": ["Face away from the cable, rope overhead", "Extend the arms fully forward and up", "Feel the stretch behind your head"],
+  "cable-pushdowns": ["Elbows pinned at your sides", "Push down until arms are straight", "Only the forearms move"],
+  "overhead-db-extension": ["Hold one dumbbell overhead with both hands", "Lower behind your head, elbows pointing up", "Extend fully at the top"],
+  "band-pushdowns": ["Anchor the band high", "Elbows at your sides, push down to straight arms", "Slow on the way up"],
+  "diamond-push-ups": ["Hands together under your chest", "Elbows track back along your body", "Do them from your knees to make it easier"],
+  // quads
+  "back-squats": ["Bar on the upper back, brace your core", "Sit down between your heels, knees follow your toes", "Drive up through the whole foot"],
+  "front-squats": ["Bar on the front of your shoulders, elbows high", "Sit straight down with a tall torso", "Keep the elbows up as you stand"],
+  "goblet-squats": ["Hold the weight at your chest", "Squat down between your knees", "Keep the chest up and heels down"],
+  "leg-press": ["Feet shoulder-width, mid-platform", "Lower until your knees reach ~90° without your hips lifting", "Don't lock the knees hard at the top"],
+  "hack-squats": ["Back flat on the pad, feet mid-platform", "Lower deep with control", "Drive through the whole foot"],
+  "bulgarian-split-squats": ["Back foot on a bench, front foot well forward", "Drop the back knee straight down", "Push through the front heel"],
+  "walking-lunges": ["Long step, torso upright", "Lower the back knee towards the floor", "Push off the front foot into the next step"],
+  "leg-extensions": ["Pad on the lower shins, knees at the pivot", "Straighten fully and squeeze the quads", "Lower slowly"],
+  "bodyweight-split-squats": ["Split stance, torso tall", "Lower the back knee to just above the floor", "Drive up through the front foot"],
+  // hamstrings / glutes
+  "romanian-deadlifts": ["Soft knees, push your hips back", "Slide the bar down your thighs to a hamstring stretch", "Back stays flat; stand up by squeezing the glutes"],
+  "db-romanian-deadlifts": ["Dumbbells in front of your thighs, knees soft", "Hinge back until you feel the hamstrings", "Keep your back flat and the weights close"],
+  "lying-leg-curls": ["Hips pressed into the pad", "Curl your heels towards your glutes", "Lower all the way, slowly"],
+  "nordic-curls": ["Anchor your heels, kneel tall", "Lower forward as slowly as you can", "Push back up with your hands and repeat"],
+  "band-leg-curls": ["Lie face down, band around your ankles", "Curl your heels towards your glutes", "Control the return"],
+  "deadlift": ["Bar over mid-foot, shins close", "Brace, then push the floor away with a flat back", "Stand tall, then lower the same path"],
+  "hip-thrusts": ["Upper back on a bench, bar over your hips", "Drive your hips up until your body is flat", "Chin tucked; squeeze the glutes at the top"],
+  "db-hip-thrusts": ["Upper back on the bench, dumbbell on your hips", "Push through your heels to lift", "Pause and squeeze at the top"],
+  "glute-bridges": ["Lie on your back, feet flat near your glutes", "Lift your hips until your body is straight", "Squeeze for a second at the top"],
+  "cable-pull-throughs": ["Face away from the low cable, rope between your legs", "Hinge your hips back", "Snap the hips forward and squeeze the glutes"],
+  // calves
+  "standing-calf-raises": ["Balls of your feet on the edge", "Lower until your heels are below the step", "Rise up high and pause"],
+  "seated-calf-raises": ["Pad on your lower thighs", "Full stretch at the bottom", "Push up and hold for a second"],
+  "single-leg-calf-raises": ["One foot on a step, hold on for balance", "Lower your heel below the step", "Rise as high as you can"],
+  "db-calf-raises": ["Dumbbells at your sides, balls of the feet on a step", "Lower into a stretch", "Rise high and pause"],
+  // core
+  "hanging-leg-raises": ["Hang still, no swinging", "Raise your legs by curling the pelvis up", "Bend your knees to make it easier"],
+  "cable-crunches": ["Kneel facing the cable, rope by your head", "Crunch your ribs towards your hips", "The hips stay still"],
+  "pallof-press": ["Stand side-on to the cable at chest height", "Press the handle straight out", "Resist the twist; hold for 2 seconds"],
+  "band-pallof-press": ["Band anchored at chest height, stand side-on", "Press straight out and hold", "Don't let your torso rotate"],
+  "plank": ["Forearms under shoulders, body in a straight line", "Squeeze your glutes and brace", "Stop when your hips start to sag"],
+  "dead-bug": ["Lie on your back, arms up, knees over hips", "Lower the opposite arm and leg slowly", "Keep your lower back pressed down"],
+};
+
+export const cuesFor = (id: string): string[] => CUES[id] ?? [];

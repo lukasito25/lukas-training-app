@@ -53,3 +53,4 @@ coverage
 # Connector deploy bundle
 apps/mcp/.deploy/
 .vercel
+apps/mcp/src/widget.generated.ts

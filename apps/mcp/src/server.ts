@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { runTool, SERVER_INSTRUCTIONS, TOOLS, type Ctx } from "./tools";
 import { WIDGETS, widgetUri } from "./widgets";
 
-export const SERVER_INFO = { name: "liftwise", title: "LiftWise: AI Strength & Physique Coach", version: "0.1.0" };
+export const SERVER_INFO = { name: "liftwise", title: "LiftWise: AI Strength & Physique Coach", version: "0.2.0" };
 
 /** One MCP server per request, bound to the signed-in user's data (stateless transport). */
 export function buildServer(ctx: Ctx): McpServer {
@@ -25,11 +25,11 @@ export function buildServer(ctx: Ctx): McpServer {
   }
 
   for (const def of TOOLS) {
-    const _meta: Record<string, unknown> = {};
+    // Every tool is callable from the card (log_set, delete_set… run without showing a new card).
+    const _meta: Record<string, unknown> = { "openai/widgetAccessible": true };
     if (def.widget) {
       _meta.ui = { resourceUri: widgetUri(def.widget, "mcp") };
       _meta["openai/outputTemplate"] = widgetUri(def.widget, "openai");
-      _meta["openai/widgetAccessible"] = true;
     }
     _meta["openai/toolInvocation/invoking"] = `${def.title}…`;
     _meta["openai/toolInvocation/invoked"] = def.title;

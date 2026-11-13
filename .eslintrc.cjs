@@ -10,6 +10,7 @@ module.exports = {
     'dist', 'node_modules', '**/node_modules', 'deployment-package', 'design', 'app.js', 'public/sw.js',
     'src/TrainingProgram.tsx', 'src/services/notifications.ts', 'src/lib/supabase.ts',
     'packages/core/src/templates/lukas-source.ts', '*.cjs', '**/dist',
+    'apps/mcp/src/widget.generated.ts', 'apps/mcp/.deploy',
   ],
   rules: {
     'react-refresh/only-export-components': 'off',

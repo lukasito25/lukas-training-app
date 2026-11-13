@@ -53,6 +53,7 @@ function sourceFrom(req: Request): Source {
 }
 
 let devRepo: Repo | null = null;
+const SCOPES = ["email", "profile"];
 
 function safeEqual(a: string, b: string) {
   if (a.length !== b.length) return false;
@@ -70,10 +71,22 @@ export function createHandler(env: Env) {
 
   const unauthorized = (error = "invalid_token", description = "Sign in to LiftWise to continue") =>
     json({ error, error_description: description }, 401, {
-      "WWW-Authenticate": `Bearer resource_metadata="${metadataUrl}", error="${error}", error_description="${description}"`,
+      "WWW-Authenticate": `Bearer resource_metadata="${metadataUrl}", scope="${SCOPES.join(" ")}", error="${error}", error_description="${description}"`,
     });
 
+  // One structured line per request (path, status, auth outcome, client family). Never logs tokens or bodies.
   return async function handle(req: Request): Promise<Response> {
+    const started = Date.now();
+    const meta: { auth?: string } = {};
+    const res = await route(req, meta);
+    console.log(JSON.stringify({
+      level: res.status >= 500 ? "error" : "info", req: `${req.method} ${new URL(req.url).pathname}`, status: res.status,
+      auth: meta.auth, client: sourceFrom(req), ms: Date.now() - started,
+    }));
+    return res;
+  };
+
+  async function route(req: Request, meta: { auth?: string }): Promise<Response> {
     const url = new URL(req.url);
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
 
@@ -82,7 +95,9 @@ export function createHandler(env: Env) {
         resource,
         authorization_servers: [issuer],
         bearer_methods_supported: ["header"],
-        scopes_supported: ["openid", "email", "profile"],
+        // No "openid": Supabase then tries to mint an ID token, which fails on projects still on the
+        // legacy HS256 JWT secret ("Error generating ID token"). The connector only needs the access token.
+        scopes_supported: SCOPES,
         resource_name: "LiftWise",
         resource_documentation: base,
       });
@@ -109,17 +124,24 @@ export function createHandler(env: Env) {
     let repo: Repo;
     let userKey: string;
     if (env.DEV_NO_AUTH === "1") {
-      const { demoRows } = await import("./demo");
-      devRepo ??= memoryRepo(demoRows(), "Europe/Bratislava");
+      const { richDemoRows } = await import("./demo");
+      devRepo ??= memoryRepo(richDemoRows(), "Europe/Bratislava");
       repo = devRepo;
       userKey = "dev";
     } else {
       const header = req.headers.get("authorization") ?? "";
       const token = header.toLowerCase().startsWith("bearer ") ? header.slice(7).trim() : "";
-      if (!token) return unauthorized("invalid_request", "Missing access token");
+      if (!token) {
+        meta.auth = "no_token";
+        return unauthorized("invalid_request", "Missing access token");
+      }
       const { data, error } = await auth.auth.getClaims(token);
       const sub = data?.claims?.sub;
-      if (error || !sub || data.claims.role !== "authenticated") return unauthorized();
+      if (error || !sub || data.claims.role !== "authenticated") {
+        meta.auth = `rejected: ${error?.message ?? (!sub ? "no sub" : `role=${String(data?.claims?.role)}`)}`;
+        return unauthorized();
+      }
+      meta.auth = "ok";
       repo = supabaseRepo(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, token, sub);
       userKey = sub;
     }
@@ -145,5 +167,5 @@ export function createHandler(env: Env) {
     } finally {
       void server.close();
     }
-  };
+  }
 }

@@ -1,0 +1,110 @@
+<!doctype html>
+<!-- Local card harness (served at http://localhost:8787/dev with DEV_NO_AUTH=1).
+     Loads the LiftWise card app from the MCP server and plays the host: ChatGPT (window.openai)
+     or MCP Apps (postMessage JSON-RPC). Tool calls go to the local demo server. -->
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LiftWise card harness</title>
+<style>
+  body{margin:0;font:13px system-ui,sans-serif;background:#d9d9d4;color:#111}
+  body.dark{background:#000;color:#eee}
+  header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px;position:sticky;top:0;background:inherit;z-index:2}
+  select,button{font:inherit;padding:6px 8px}
+  main{display:flex;gap:16px;padding:10px;align-items:flex-start}
+  #frameWrap{width:420px;max-width:100%}
+  #frameWrap.full{position:fixed;inset:0;width:auto;background:inherit;z-index:3;padding:16px;overflow:auto}
+  iframe{width:100%;border:0;display:block;min-height:120px}
+  #log{flex:1;font:11px ui-monospace,monospace;white-space:pre-wrap;max-height:85vh;overflow:auto;background:rgba(0,0,0,.06);padding:8px;border-radius:8px}
+</style>
+</head>
+<body>
+<header>
+  <select id="host"><option value="mcp">MCP Apps host (Claude)</option><option value="openai">ChatGPT host</option></select>
+  <select id="tool">
+    <option value='get_today_workout|{"weekday":"saturday"}'>get_today_workout (Saturday, training)</option>
+    <option value='get_today_workout|{}'>get_today_workout (today)</option>
+    <option value='get_exercise|{"exercise":"lat pulldowns","weekday":"saturday"}'>get_exercise</option>
+    <option value='swap_exercise|{"exercise":"lat pulldowns","weekday":"saturday"}'>swap_exercise (pick)</option>
+    <option value='get_weekly_review|{"week":"last"}'>get_weekly_review</option>
+    <option value='get_progress|{}'>get_progress</option>
+    <option value='plan_builder|{}'>plan_builder</option>
+  </select>
+  <select id="theme"><option>light</option><option>dark</option></select>
+  <select id="width"><option value="420">phone 420</option><option value="375">375</option><option value="720">wide 720</option></select>
+  <button id="go">Render</button>
+</header>
+<main><div id="frameWrap"><iframe id="f" title="LiftWise card"></iframe></div><pre id="log"></pre></main>
+<script>
+const $ = (id) => document.getElementById(id);
+const log = (...a) => { $("log").textContent = a.map((x) => typeof x === "string" ? x : JSON.stringify(x)).join(" ") + "\n" + $("log").textContent; };
+let rid = 0;
+async function mcp(method, params) {
+  const r = await fetch("/mcp", { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: ++rid, method, params }) });
+  const j = await r.json();
+  if (j.error) throw j.error;
+  return j.result;
+}
+let widgetHtml = null;
+async function getHtml() {
+  if (!widgetHtml) widgetHtml = (await mcp("resources/read", { uri: "ui://liftwise/app.v2.html" })).contents[0].text;
+  return widgetHtml;
+}
+function setFull(on) { $("frameWrap").classList.toggle("full", on); return { mode: on ? "fullscreen" : "inline" }; }
+
+async function render() {
+  const [name, argsJson] = $("tool").value.split("|");
+  const theme = $("theme").value;
+  document.body.classList.toggle("dark", theme === "dark");
+  $("frameWrap").style.width = $("width").value + "px";
+  setFull(false);
+  const first = await mcp("tools/call", { name, arguments: JSON.parse(argsJson) });
+  log("model called", name, "→", first.content[0].text.slice(0, 160));
+  const html = await getHtml();
+  const f = $("f");
+  if ($("host").value === "openai") {
+    window.__lw = {
+      call: async (n, a) => { log("callTool", n, a); return mcp("tools/call", { name: n, arguments: a }); },
+      say: async (p) => log("sendFollowUpMessage", p.prompt),
+      open: (h) => log("openExternal", h.href),
+      mode: async (m) => { const r = setFull(m.mode === "fullscreen"); f.contentWindow.openai.displayMode = r.mode; f.contentWindow.dispatchEvent(new Event("openai:set_globals")); return r; },
+      state: (s) => log("setWidgetState", s),
+    };
+    const shim = `<script>window.openai={toolOutput:${JSON.stringify(first.structuredContent)},widgetState:null,theme:${JSON.stringify(theme)},displayMode:"inline",
+      callTool:(n,a)=>parent.__lw.call(n,a),sendFollowUpMessage:(p)=>parent.__lw.say(p),openExternal:(h)=>parent.__lw.open(h),
+      requestDisplayMode:(m)=>parent.__lw.mode(m),setWidgetState:(s)=>{window.openai.widgetState=s;parent.__lw.state(s)}};<\/script>`;
+    f.style.height = "900px";
+    f.srcdoc = html.replace("<head>", "<head>" + shim);
+    return;
+  }
+  // MCP Apps host
+  f.style.height = "200px";
+  f.srcdoc = html;
+  window.onmessage = async (e) => {
+    if (e.source !== f.contentWindow) return;
+    const m = e.data;
+    const reply = (result) => f.contentWindow.postMessage({ jsonrpc: "2.0", id: m.id, result }, "*");
+    const fail = (error) => f.contentWindow.postMessage({ jsonrpc: "2.0", id: m.id, error }, "*");
+    switch (m.method) {
+      case "ui/initialize": return reply({ protocolVersion: "2026-01-26", hostCapabilities: {}, hostContext: { theme, displayMode: "inline", availableDisplayModes: ["inline", "fullscreen"] } });
+      case "ui/notifications/initialized":
+        return f.contentWindow.postMessage({ jsonrpc: "2.0", method: "ui/notifications/tool-result", params: first }, "*");
+      case "ui/notifications/size-changed": f.style.height = Math.max(120, m.params.height) + "px"; return;
+      case "tools/call": log("tools/call", m.params.name, m.params.arguments); try { return reply(await mcp("tools/call", m.params)); } catch (err) { return fail(err); }
+      case "ui/message": log("ui/message", m.params.content[0].text); return reply({});
+      case "ui/open-link": log("ui/open-link", m.params.url); return reply({});
+      case "ui/request-display-mode": {
+        const r = setFull(m.params.mode === "fullscreen"); reply(r);
+        return f.contentWindow.postMessage({ jsonrpc: "2.0", method: "ui/notifications/host-context-changed", params: { displayMode: r.mode } }, "*");
+      }
+      case "ui/update-model-context": log("model context:", m.params.content[0].text); return reply({});
+      default: if (m.id != null) fail({ code: -32601, message: "not supported: " + m.method });
+    }
+  };
+}
+$("go").onclick = () => render().catch((e) => log("ERROR", e.message || e));
+render().catch((e) => log("ERROR", e.message || e));
+</script>
+</body>
+</html>
