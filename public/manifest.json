@@ -1,54 +1,20 @@
 {
-  "name": "Lukas's Fitness Companion - FFMI 20 Goal",
-  "short_name": "Fitness Companion",
-  "description": "Evidence-based 3x/week aesthetic training program with cloud sync. Transform from FFMI 17.5 to 20 with progressive mesocycles.",
+  "name": "LiftWise: AI Strength & Physique Coach",
+  "short_name": "LiftWise",
+  "description": "A training plan built around your goal, equipment and schedule. It adapts to how you slept and what you lifted, and explains every change.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#111827",
-  "theme_color": "#1E40AF",
+  "background_color": "#F2F2EE",
+  "theme_color": "#F2F2EE",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [
-    {
-      "src": "/fitness-icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
+    { "src": "/liftwise-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/liftwise-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
   ],
-  "categories": ["fitness", "health", "lifestyle", "sports"],
-  "screenshots": [
-    {
-      "src": "/fitness-icon.svg",
-      "sizes": "540x720",
-      "type": "image/svg+xml",
-      "form_factor": "narrow"
-    }
-  ],
+  "categories": ["fitness", "health", "sports"],
   "shortcuts": [
-    {
-      "name": "Today's Workout",
-      "short_name": "Workout",
-      "description": "Jump directly to today's training session",
-      "url": "/?view=workout",
-      "icons": [
-        {
-          "src": "/fitness-icon.svg",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Track Progress",
-      "short_name": "Progress",
-      "description": "View your fitness progress and measurements",
-      "url": "/?view=measurements",
-      "icons": [
-        {
-          "src": "/fitness-icon.svg",
-          "sizes": "96x96"
-        }
-      ]
-    }
+    { "name": "Today's workout", "short_name": "Train", "url": "/#train", "icons": [{ "src": "/liftwise-icon.svg", "sizes": "any" }] },
+    { "name": "Progress", "short_name": "Progress", "url": "/#progress", "icons": [{ "src": "/liftwise-icon.svg", "sizes": "any" }] }
   ]
 }

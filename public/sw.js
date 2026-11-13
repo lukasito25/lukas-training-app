@@ -1,103 +1,90 @@
-// Service Worker for Push Notifications and Offline Support
+// LiftWise service worker: lets the app open and log workouts offline.
+// - Page loads: network first, fall back to the cached shell (so new deploys show up right away).
+// - Built assets (/assets/*, hashed names): cache first, since they never change.
+// - Anything cross-origin (Supabase, fonts, MCP) is left to the network.
 
-const CACHE_NAME = 'fitness-companion-v1';
-const urlsToCache = [
-  '/',
-  '/fitness-icon.svg',
-  '/manifest.json'
-];
+const CACHE = 'liftwise-v2';
+const SHELL = ['/', '/manifest.json', '/liftwise-icon.svg'];
 
-// Install Service Worker
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        // Cache files that exist, skip missing ones
-        return Promise.allSettled(
-          urlsToCache.map(url => cache.add(url).catch(err => console.warn(`Failed to cache ${url}:`, err)))
-        );
-      })
+    caches.open(CACHE).then((c) => Promise.allSettled(SHELL.map((u) => c.add(u)))),
   );
   self.skipWaiting();
 });
 
-// Fetch from Cache or Network
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))),
+  );
+  self.clients.claim();
+});
+
 self.addEventListener('fetch', (event) => {
-  // Skip caching during development to avoid conflicts
-  if (event.request.url.includes('localhost:5173') || event.request.url.includes('vite')) {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put('/', copy));
+          return res;
+        })
+        .catch(() => caches.match('/').then((r) => r || Response.error())),
+    );
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
-      .catch(() => {
-        // Fallback to network on cache errors
-        return fetch(event.request);
-      })
-  );
+  if (url.pathname.startsWith('/assets/')) {
+    event.respondWith(
+      caches.match(req).then(
+        (hit) =>
+          hit ||
+          fetch(req).then((res) => {
+            if (res.ok) {
+              const copy = res.clone();
+              caches.open(CACHE).then((c) => c.put(req, copy));
+            }
+            return res;
+          }),
+      ),
+    );
+  }
 });
 
-// Push Event Handler
+// Workout reminders (sent by the server once accounts and push are enabled).
 self.addEventListener('push', (event) => {
-  const options = {
-    body: event.data ? event.data.text() : 'Time for your workout! 🏋️',
-    icon: '/fitness-icon.svg',
-    badge: '/fitness-icon.svg',
-    vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: '2'
-    },
-    actions: [
-      {
-        action: 'start-workout',
-        title: 'Start Workout',
-        icon: '/fitness-icon.svg'
-      },
-      {
-        action: 'view-gains',
-        title: 'View Expected Gains',
-        icon: '/fitness-icon.svg'
-      }
-    ]
-  };
-
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { body: event.data ? event.data.text() : '' };
+  }
   event.waitUntil(
-    self.registration.showNotification('🏋️ Fitness Companion', options)
+    self.registration.showNotification(data.title || 'LiftWise', {
+      body: data.body || "Today's session is ready.",
+      icon: '/liftwise-icon.svg',
+      badge: '/liftwise-icon.svg',
+      data: { url: data.url || '/#today' },
+    }),
   );
 });
 
-// Notification Click Handler
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-
-  if (event.action === 'start-workout') {
-    event.waitUntil(
-      clients.openWindow('/?view=workout')
-    );
-  } else if (event.action === 'view-gains') {
-    event.waitUntil(
-      clients.openWindow('/?view=measurements')
-    );
-  } else {
-    event.waitUntil(
-      clients.openWindow('/')
-    );
-  }
+  const target = (event.notification.data && event.notification.data.url) || '/';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
+      const open = wins.find((w) => new URL(w.url).origin === self.location.origin);
+      if (open) {
+        open.navigate(target);
+        return open.focus();
+      }
+      return self.clients.openWindow(target);
+    }),
+  );
 });
-
-// Background Sync for offline data
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'workout-sync') {
-    event.waitUntil(syncWorkoutData());
-  }
-});
-
-async function syncWorkoutData() {
-  // Sync any pending workout data when connection is restored
-  console.log('Syncing workout data...');
-}

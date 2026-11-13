@@ -50,3 +50,6 @@ coverage
 
 # Local development
 .vercel
+# Connector deploy bundle
+apps/mcp/.deploy/
+.vercel

@@ -1,0 +1,31 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packages/core/package-lock.json
+            apps/mcp/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix packages/core
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: MCP server
+        if: hashFiles('apps/mcp/package-lock.json') != ''
+        run: |
+          npm ci --prefix apps/mcp
+          npm --prefix apps/mcp run typecheck
+          npm --prefix apps/mcp test
